@@ -288,5 +288,6 @@
   "plugins.status.stopped": "Stopped",
   "plugins.status.error": "Error",
   "plugins.status.incompatible": "Incompatible",
-  "plugins.status.nodeMissing": "Node.js missing"
+  "plugins.status.nodeMissing": "Node.js missing",
+  "plugins.protected": "This plugin’s manifest is encrypted by Elgato (mainly their own plugins, e.g. Discord). It only works in the official Stream Deck app; Deckless cannot load it."
 }

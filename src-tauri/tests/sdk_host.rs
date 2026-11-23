@@ -153,3 +153,35 @@ fn crashing_plugin_is_marked_as_error() {
         )
     });
 }
+
+#[test]
+fn protected_elgato_manifest_gives_clear_error() {
+    use std::io::Write;
+    let tmp = tempfile::tempdir().unwrap();
+    let archive = tmp.path().join("p.streamDeckPlugin");
+    {
+        let mut z = zip::ZipWriter::new(std::fs::File::create(&archive).unwrap());
+        let opts: zip::write::SimpleFileOptions = Default::default();
+        z.start_file("com.elgato.x.sdPlugin/manifest.json", opts)
+            .unwrap();
+        z.write_all(b"ELGATO\x01\x00\x00\x7f\x00\x00encrypted")
+            .unwrap();
+        z.finish().unwrap();
+    }
+    let plugins = tmp.path().join("plugins");
+    let logs = tmp.path().join("logs");
+    std::fs::create_dir_all(&logs).unwrap();
+    let host = Host::start(&plugins, &tmp.path().join("s"), &logs, None).unwrap();
+    let err = host.install(&archive).unwrap_err();
+    assert_eq!(format!("{err:#}"), "i18n:plugins.protected");
+    // No half-installed or temporary folders are left behind.
+    assert_eq!(std::fs::read_dir(&plugins).unwrap().count(), 0);
+
+    // The real file the user tried, if it is present in the repository folder.
+    let real = Path::new(env!("CARGO_MANIFEST_DIR"))
+        .join("../discord-2.4.0.123-mac_windows.streamDeckPlugin");
+    if real.exists() {
+        let err = host.install(&real).unwrap_err();
+        assert_eq!(format!("{err:#}"), "i18n:plugins.protected");
+    }
+}

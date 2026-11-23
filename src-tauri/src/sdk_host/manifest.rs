@@ -95,11 +95,10 @@ pub enum Runtime {
 impl Manifest {
     pub fn load(dir: &Path) -> anyhow::Result<Manifest> {
         let path = dir.join("manifest.json");
-        let text = std::fs::read_to_string(&path)
+        let bytes = std::fs::read(&path)
             .with_context(|| format!("{} has no manifest.json", dir.display()))?;
-        // Some manifests start with a BOM.
-        let text = text.trim_start_matches('\u{feff}');
-        let mut m: Manifest = serde_json::from_str(text).context("invalid manifest.json")?;
+        let text = decode_manifest(&bytes)?;
+        let mut m: Manifest = serde_json::from_str(&text).context("invalid manifest.json")?;
         if m.uuid.is_empty() {
             // Old SDK v1 manifests have no UUID; the folder name is `<uuid>.sdPlugin`.
             m.uuid = uuid_from_dir(dir).unwrap_or_default();
@@ -151,6 +150,43 @@ impl Manifest {
 
     pub fn action(&self, uuid: &str) -> Option<&ManifestAction> {
         self.actions.iter().find(|a| a.uuid == uuid)
+    }
+}
+
+/// Error for plugins whose manifest is encrypted by Elgato (their own Marketplace plugins).
+/// Only the official Stream Deck app can read them; we do not try to get around that.
+/// The message is an i18n key the editor translates.
+#[derive(Debug, thiserror::Error)]
+#[error("i18n:plugins.protected")]
+pub struct ProtectedManifest;
+
+/// Manifest bytes to text: UTF-8 (with or without BOM) or UTF-16 with a BOM.
+pub fn decode_manifest(bytes: &[u8]) -> anyhow::Result<String> {
+    if bytes.starts_with(b"ELGATO") {
+        return Err(ProtectedManifest.into());
+    }
+    let utf16 = |data: &[u8], le: bool| -> anyhow::Result<String> {
+        let units: Vec<u16> = data
+            .chunks_exact(2)
+            .map(|c| {
+                if le {
+                    u16::from_le_bytes([c[0], c[1]])
+                } else {
+                    u16::from_be_bytes([c[0], c[1]])
+                }
+            })
+            .collect();
+        String::from_utf16(&units).context("manifest.json is not valid UTF-16")
+    };
+    match bytes {
+        [0xEF, 0xBB, 0xBF, rest @ ..] => Ok(std::str::from_utf8(rest)
+            .context("manifest.json is not valid UTF-8")?
+            .to_string()),
+        [0xFF, 0xFE, rest @ ..] => utf16(rest, true),
+        [0xFE, 0xFF, rest @ ..] => utf16(rest, false),
+        _ => Ok(std::str::from_utf8(bytes)
+            .context("manifest.json is not valid UTF-8")?
+            .to_string()),
     }
 }
 
@@ -243,6 +279,22 @@ mod tests {
         );
         let none = parse(r#"{"UUID":"a"}"#);
         assert_eq!(none.runtime(), None);
+    }
+
+    #[test]
+    fn decodes_bom_and_utf16_and_rejects_protected() {
+        let json = r#"{"UUID":"a.b"}"#;
+        assert_eq!(decode_manifest(json.as_bytes()).unwrap(), json);
+        let mut bom = vec![0xEF, 0xBB, 0xBF];
+        bom.extend_from_slice(json.as_bytes());
+        assert_eq!(decode_manifest(&bom).unwrap(), json);
+        let mut le = vec![0xFF, 0xFE];
+        le.extend(json.encode_utf16().flat_map(|u| u.to_le_bytes()));
+        assert_eq!(decode_manifest(&le).unwrap(), json);
+        let protected = b"ELGATO\x01\x00\x00\x7f\x00binary";
+        let err = decode_manifest(protected).unwrap_err();
+        assert!(err.downcast_ref::<ProtectedManifest>().is_some());
+        assert_eq!(err.to_string(), "i18n:plugins.protected");
     }
 
     #[test]

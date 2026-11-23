@@ -70,6 +70,7 @@ Podporované jsou akce pro klasická tlačítka. Akce určené jen pro otočné 
 - **Hry v exkluzivním režimu celé obrazovky:** přes ně se panel nevykreslí. Přepni hru do režimu „okno bez okrajů“ (borderless windowed).
 - **Aplikace spuštěné jako správce:** Windows (UIPI) nedovolí běžné aplikaci posílat do nich klávesy. Zapni v Nastavení *Spouštět jako správce*. Windows se pak při každém spuštění zeptá na povolení. Když akce do takového okna selže, Deckless to jednou připomene.
 - **Anti-cheat:** některé hry umělý vstup ignorují nebo blokují. Deckless se to nikdy nesnaží obejít.
+- **Vlastní pluginy Elgato (např. Discord):** mají zašifrovaný `manifest.json`, aby je načetla jen oficiální aplikace Stream Deck. Deckless je nainstalovat neumí a nikdy se to nesnaží obejít. Pluginů od jiných autorů se to netýká.
 - Pluginy pro Stream Deck, které přibalují vlastní profily Stream Decku (`switchToProfile`), tuhle funkci nevyužijí. Akce samotné fungují.
 
 ## Data

@@ -6,3 +6,6 @@ src-tauri/gen/schemas
 .DS_Store
 .claude/settings.local.json
 src-tauri/target-clippy
+
+# Third-party plugin packages (never commit them)
+*.streamDeckPlugin

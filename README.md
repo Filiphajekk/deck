@@ -70,6 +70,7 @@ Actions for regular keys are supported. Actions made only for dials (Stream Deck
 - **Games in exclusive fullscreen:** the panel cannot be drawn over them. Switch the game to borderless windowed mode.
 - **Apps running as administrator:** Windows (UIPI) does not let a normal app send keystrokes into them. Turn on *Run as administrator* in Settings; Windows then asks for permission every time Deckless starts. When an action into such a window fails, Deckless reminds you once.
 - **Anti-cheat:** some games ignore or block synthetic input. Deckless never tries to get around it.
+- **Elgato's own plugins (e.g. Discord):** their `manifest.json` is encrypted so that only the official Stream Deck app can load them. Deckless cannot install them and never tries to get around that. Plugins from other authors are not affected.
 - Stream Deck plugins that bundle their own Stream Deck profiles (`switchToProfile`) cannot use that feature. The actions themselves work.
 
 ## Data

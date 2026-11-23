@@ -47,6 +47,12 @@ interface Defaults {
 
 const NODE_URL = "https://nodejs.org/";
 
+/** Backend errors of the form `i18n:<key>` are translated; anything else is shown as is. */
+function errorText(t: (k: string) => string, msg: string): string {
+  const m = /^(?:Error: )?i18n:([w.]+)/.exec(msg);
+  return m ? t(m[1]) : msg;
+}
+
 function usePlugins() {
   const [plugins, setPlugins] = useState<PluginInfo[]>([]);
   const reload = useCallback(() => {
@@ -198,7 +204,7 @@ export function PluginsTab() {
       setMessage(
         e.payload.ok
           ? { ok: true, text: t("plugins.installed", { name: e.payload.name ?? "" }) }
-          : { ok: false, text: e.payload.error ?? "" },
+          : { ok: false, text: errorText(t, e.payload.error ?? "") },
       );
       reload();
     });
@@ -219,7 +225,7 @@ export function PluginsTab() {
       const info = await invoke<PluginInfo>("install_plugin", { path });
       setMessage({ ok: true, text: t("plugins.installed", { name: info.name }) });
     } catch (e) {
-      setMessage({ ok: false, text: String(e) });
+      setMessage({ ok: false, text: errorText(t, String(e)) });
     } finally {
       setBusy(false);
       reload();
@@ -231,7 +237,7 @@ export function PluginsTab() {
     try {
       await invoke("uninstall_plugin", { uuid: p.uuid });
     } catch (e) {
-      setMessage({ ok: false, text: String(e) });
+      setMessage({ ok: false, text: errorText(t, String(e)) });
     }
     reload();
   };

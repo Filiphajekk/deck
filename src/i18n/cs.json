@@ -288,5 +288,6 @@
   "plugins.status.stopped": "Zastaveno",
   "plugins.status.error": "Chyba",
   "plugins.status.incompatible": "Nekompatibilní",
-  "plugins.status.nodeMissing": "Chybí Node.js"
+  "plugins.status.nodeMissing": "Chybí Node.js",
+  "plugins.protected": "Tenhle plugin má manifest zašifrovaný firmou Elgato (týká se hlavně jejich vlastních pluginů, např. Discord). Funguje jen v oficiální aplikaci Stream Deck a Deckless ho načíst neumí."
 }

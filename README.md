@@ -1,94 +1,96 @@
 # Deckless
 
-**Stream Deck bez Stream Decku.** Stiskneš zkratku (nebo boční tlačítko myši) a přímo u kurzoru se objeví panel tlačítek. Vybereš akci a panel zmizí. Žádný hardware, žádný telefon.
+**English** · [Čeština](README.cs.md)
 
-- **Vestavěné akce:** klávesové zkratky, psaní textu, spouštění programů, otevírání webů a složek, příkazy, média, hlasitost (i jednotlivých aplikací), mikrofon, přepínání zvukových zařízení, okna, zamknutí, uspání, výstřižek, OBS.
-- **Profily podle aplikace:** v prohlížeči jiná tlačítka než ve VS Code, panel se přepne sám.
-- **Pluginy pro Stream Deck:** existující pluginy (Discord, Spotify, Twitch, Home Assistant…) fungují i tady.
+**A Stream Deck without the Stream Deck.** Press a shortcut (or a side mouse button) and a panel of buttons appears right at your mouse cursor. Pick an action and the panel disappears. No hardware, no phone.
 
-Aplikace je zdarma, běží jen lokálně, nemá účty ani telemetrii. Po síti komunikuje jen s localhostem (OBS a pluginy).
+- **Built-in actions:** keyboard shortcuts, typing text, launching programs, opening websites and folders, commands, media, volume (also per app), microphone, switching audio devices, windows, lock, sleep, screen snip, OBS.
+- **Per-app profiles:** different buttons in your browser than in VS Code, and the panel switches on its own.
+- **Stream Deck plugins:** existing plugins (Discord, Spotify, Twitch, Home Assistant…) work here too.
 
-## Instalace
+The app is free and runs locally only. It has no accounts and no telemetry. It only talks to localhost (OBS and plugins).
 
-1. Spusť instalátor `Deckless_x.y.z_x64-setup.exe`. Instaluje se jen pro aktuálního uživatele, správce není potřeba.
-2. Po instalaci se Deckless spustí a usadí se v oznamovací oblasti (vedle hodin). Ve výchozím stavu se spouští po přihlášení.
+## Installation
 
-Potřebuješ Windows 10 nebo 11 (x64) s WebView2. Ve Windows 11 je WebView2 předinstalovaný, do Windows 10 ho instalátor případně doinstaluje.
+1. Run the installer `Deckless_x.y.z_x64-setup.exe`. It installs for the current user only, so no administrator rights are needed.
+2. After installation Deckless starts and sits in the notification area (next to the clock). By default it starts when you sign in.
 
-## První kroky
+You need Windows 10 or 11 (x64) with WebView2. WebView2 comes with Windows 11; on Windows 10 the installer adds it if it is missing.
 
-- **Ctrl+Shift+Space** otevře panel u kurzoru.
-  - **Krátce ťukni:** panel zůstane otevřený a klikneš na tlačítko. Zavřeš ho klávesou Esc, kliknutím mimo nebo dalším stiskem zkratky.
-  - **Podrž:** najeď směrem k tlačítku a pusť. U radiálního panelu stačí švihnout správným směrem.
-  - Šipkami se mezi tlačítky dá i pohybovat, Enter tlačítko spustí.
-- Ozubené kolo v panelu nebo ikona v oznamovací oblasti otevře **editor**:
-  - vlevo jsou profily, uprostřed náhled panelu, vpravo akce,
-  - akci přetáhneš do slotu, tlačítka jde přesouvat, pravým tlačítkem duplikuješ, smažeš nebo vytvoříš složku,
-  - po kliknutí na tlačítko vpravo nastavíš titulek, ikonu a parametry, tlačítkem **Vyzkoušet** ho rovnou spustíš,
-  - všechno se ukládá samo.
-- **Přidat profil pro aplikaci** (vlevo dole) vytvoří profil, který se použije, když je daná aplikace v popředí. Prázdná místa se doplní z výchozího profilu.
-- V **Nastavení** změníš zkratku, zapneš boční tlačítko myši, upravíš vzhled, jazyk a připojení k OBS.
+## Getting started
 
-## Pluginy pro Stream Deck
+- **Ctrl+Shift+Space** opens the panel at the cursor.
+  - **Tap it:** the panel stays open and you click a button. Close it with Esc, a click outside, or pressing the shortcut again.
+  - **Hold it:** move towards a button and let go. With the radial panel a quick flick in the right direction is enough.
+  - You can also move between buttons with the arrow keys and press Enter to run one.
+- The gear in the panel or the tray icon opens the **editor**:
+  - profiles on the left, a preview of the panel in the middle, actions on the right,
+  - drag an action onto a slot; buttons can be moved around; right-click to duplicate, delete or create a folder,
+  - click a button to set its title, icon and parameters on the right; **Try it** runs it right away,
+  - everything is saved automatically.
+- **Add profile for an app** (bottom left) creates a profile that is used while that app is in the foreground. Empty slots are filled from the default profile.
+- In **Settings** you can change the shortcut, turn on a side mouse button, adjust the look and language, and set up the OBS connection.
 
-1. Plugin stáhni z [Elgato Marketplace](https://marketplace.elgato.com/stream-deck/plugins). Dostaneš soubor `.streamDeckPlugin`.
-2. Nainstaluj ho jedním z těchto způsobů:
-   - dvojklikem na soubor,
-   - přetažením souboru do okna editoru,
-   - na kartě **Pluginy** tlačítkem *Instalovat plugin ze souboru*.
-3. Akce pluginu najdeš v editoru v kategorii **Pluginy**. Jejich nastavení (Property Inspector) se zobrazí vpravo po kliknutí na tlačítko.
+## Stream Deck plugins
 
-Většina pluginů je napsaná v Node.js. Pokud Node.js v počítači chybí, editor na to upozorní. Stáhneš ho z [nodejs.org](https://nodejs.org/) (verze 20 nebo novější).
+1. Download a plugin from the [Elgato Marketplace](https://marketplace.elgato.com/stream-deck/plugins). You get a `.streamDeckPlugin` file.
+2. Install it in one of these ways:
+   - double-click the file,
+   - drop the file onto the editor window,
+   - on the **Plugins** tab, use *Install plugin from file*.
+3. The plugin's actions appear in the editor under **Plugins**. Their settings (Property Inspector) show up on the right when you click the button.
 
-Podporované jsou akce pro klasická tlačítka. Akce určené jen pro otočné ovladače (Stream Deck +) jsou označené jako nepodporované.
+Most plugins are written in Node.js. If Node.js is not installed, the editor tells you. Get it from [nodejs.org](https://nodejs.org/) (version 20 or newer).
 
-## Známá omezení
+Actions for regular keys are supported. Actions made only for dials (Stream Deck +) are marked as unsupported.
 
-- **Hry v exkluzivním režimu celé obrazovky:** přes ně se panel nevykreslí. Přepni hru do režimu „okno bez okrajů“ (borderless windowed).
-- **Aplikace spuštěné jako správce:** Windows (UIPI) nedovolí běžné aplikaci posílat do nich klávesy. Zapni v Nastavení *Spouštět jako správce*. Windows se pak při každém spuštění zeptá na povolení. Když akce do takového okna selže, Deckless to jednou připomene.
-- **Anti-cheat:** některé hry umělý vstup ignorují nebo blokují. Deckless se to nikdy nesnaží obejít.
-- Pluginy pro Stream Deck, které přibalují vlastní profily Stream Decku (`switchToProfile`), tuhle funkci nevyužijí. Akce samotné fungují.
+## Known limitations
+
+- **Games in exclusive fullscreen:** the panel cannot be drawn over them. Switch the game to borderless windowed mode.
+- **Apps running as administrator:** Windows (UIPI) does not let a normal app send keystrokes into them. Turn on *Run as administrator* in Settings; Windows then asks for permission every time Deckless starts. When an action into such a window fails, Deckless reminds you once.
+- **Anti-cheat:** some games ignore or block synthetic input. Deckless never tries to get around it.
+- Stream Deck plugins that bundle their own Stream Deck profiles (`switchToProfile`) cannot use that feature. The actions themselves work.
 
 ## Data
 
-Všechno je v `%APPDATA%\Deckless`:
+Everything lives in `%APPDATA%\Deckless`:
 
 ```
-config.json              nastavení
-profiles\<id>.json       profily
-plugins\<uuid>.sdPlugin  nainstalované pluginy
-plugin-settings\         nastavení pluginů
-icons\cache\             ikony aplikací
-logs\                    logy (i logy pluginů)
+config.json              settings
+profiles\<id>.json       profiles
+plugins\<uuid>.sdPlugin  installed plugins
+plugin-settings\         plugin settings
+icons\cache\             app icons
+logs\                    logs (including plugin logs)
 ```
 
-Zálohu všeho uděláš v Nastavení tlačítkem *Exportovat vše*.
+To back up everything, use *Export everything* in Settings.
 
-## Sestavení ze zdrojáků
+## Building from source
 
-Potřebuješ:
+You need:
 
 - Rust (stable, `x86_64-pc-windows-msvc`): `winget install Rustlang.Rustup`
-- Visual Studio Build Tools s „Desktop development with C++“
-- Node.js 20+ (testovací plugin potřebuje 22+)
+- Visual Studio Build Tools with "Desktop development with C++"
+- Node.js 20+ (the test plugin needs 22+)
 
 ```powershell
 npm install
-npm run tauri dev       # vývojová verze
-npm run tauri build     # instalátor NSIS v src-tauri\target\release\bundle\nsis
+npm run tauri dev       # development build
+npm run tauri build     # NSIS installer in src-tauri\target\release\bundle\nsis
 ```
 
-Testy a kontroly:
+Tests and checks:
 
 ```powershell
 cd src-tauri
-cargo test                                   # unit + integrační testy (OBS mock, SDK hostitel)
+cargo test                                   # unit + integration tests (OBS mock, plugin host)
 cargo clippy --all-targets -- -D warnings
 cd ..
-npm test                                     # Vitest (spouštěj z PowerShellu nebo cmd)
+npm test                                     # Vitest (run it from PowerShell or cmd)
 npm run typecheck
 npm run lint
 npm run format:check
 ```
 
-Architektura a rozhodnutí: [SPEC.md](SPEC.md), [DECISIONS.md](DECISIONS.md), stav práce: [PROGRESS.md](PROGRESS.md).
+Architecture and decisions: [SPEC.md](SPEC.md) (Czech), [DECISIONS.md](DECISIONS.md); work status: [PROGRESS.md](PROGRESS.md).

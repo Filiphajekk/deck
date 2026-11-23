@@ -72,3 +72,4 @@ Decisions made where the spec left room (one sentence each, newest at the bottom
 - Plugin processes are assigned to a job object with KILL_ON_JOB_CLOSE so they never outlive the app.
 - Phases 2–4 were developed together (shared commands/modules) and committed in one commit; the acceptance results per phase are in PROGRESS.md.
 - WebView2 extra flags (`--in-process-gpu`, `--renderer-process-limit=1`) did not lower memory in a measurement, so Tauri's default browser arguments are kept.
+- `README.md` is in English and links to the Czech `README.cs.md` (requested by the user; the spec asked for a Czech README, which is kept).

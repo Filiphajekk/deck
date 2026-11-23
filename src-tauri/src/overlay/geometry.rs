@@ -45,9 +45,14 @@ pub struct PanelGeometry {
     pub rows: u8,
     /// Empty border around the panel inside the window (room for the shadow).
     pub margin: f64,
+    /// Settings (gear) button that opens the editor: centre and radius.
+    pub gear_x: f64,
+    pub gear_y: f64,
+    pub gear_r: f64,
 }
 
-const MARGIN: f64 = 10.0;
+const MARGIN: f64 = 14.0;
+const GEAR_R: f64 = 11.0;
 const RADIAL_DIAMETER: f64 = 330.0;
 const INNER_RATIO: f64 = 0.3;
 const GRID_CELL: f64 = 84.0;
@@ -72,6 +77,10 @@ pub fn panel_geometry(layout: Layout, size_percent: u16) -> PanelGeometry {
                 cols: 3,
                 rows: 3,
                 margin: MARGIN,
+                // Bottom-right corner, outside the ring.
+                gear_x: side - MARGIN - 2.0,
+                gear_y: side - MARGIN - 2.0,
+                gear_r: GEAR_R,
             }
         }
         Layout::Grid { cols, rows } => {
@@ -81,8 +90,9 @@ pub fn panel_geometry(layout: Layout, size_percent: u16) -> PanelGeometry {
             let pad = GRID_PAD * s;
             let w = cols as f64 * cell + (cols as f64 - 1.0) * gap + pad * 2.0;
             let h = rows as f64 * cell + (rows as f64 - 1.0) * gap + pad * 2.0;
+            let width = w + MARGIN * 2.0;
             PanelGeometry {
-                width: w + MARGIN * 2.0,
+                width,
                 height: h + MARGIN * 2.0,
                 outer: 0.0,
                 inner: 0.0,
@@ -92,6 +102,10 @@ pub fn panel_geometry(layout: Layout, size_percent: u16) -> PanelGeometry {
                 cols,
                 rows,
                 margin: MARGIN,
+                // On the top-right corner of the panel border.
+                gear_x: width - MARGIN,
+                gear_y: MARGIN,
+                gear_r: GEAR_R,
             }
         }
     }
@@ -116,6 +130,8 @@ pub enum Hit {
     /// Centre of the radial panel (back / close).
     Center,
     Slot(usize),
+    /// The settings (gear) button.
+    Gear,
     /// Outside of every button.
     None,
 }
@@ -156,6 +172,12 @@ pub fn grid_hit(x: f64, y: f64, g: &PanelGeometry) -> Hit {
         return Hit::None;
     }
     Hit::Slot(row * g.cols as usize + col)
+}
+
+/// Whether a logical point hits the gear button.
+pub fn gear_hit(x: f64, y: f64, g: &PanelGeometry) -> bool {
+    let (dx, dy) = (x - g.gear_x, y - g.gear_y);
+    (dx * dx + dy * dy).sqrt() <= g.gear_r + 3.0
 }
 
 /// Direction from held arrow keys to a radial slot (Up+Right = top-right...).
@@ -296,6 +318,18 @@ mod tests {
         // Outside.
         assert_eq!(grid_hit(1.0, 1.0, &g), Hit::None);
         assert_eq!(grid_hit(g.width - 1.0, g.height - 1.0, &g), Hit::None);
+    }
+
+    #[test]
+    fn gear_is_outside_buttons() {
+        let g = panel_geometry(Layout::Radial, 100);
+        assert!(gear_hit(g.gear_x, g.gear_y, &g));
+        let c = g.width / 2.0;
+        let d = ((g.gear_x - c).powi(2) + (g.gear_y - c).powi(2)).sqrt();
+        assert!(d > g.outer + g.gear_r);
+        let grid = panel_geometry(Layout::Grid { cols: 3, rows: 3 }, 100);
+        assert!(gear_hit(grid.gear_x, grid.gear_y, &grid));
+        assert_eq!(grid_hit(grid.gear_x, grid.gear_y, &grid), Hit::None);
     }
 
     #[test]

@@ -34,3 +34,41 @@ Decisions made where the spec left room (one sentence each, newest at the bottom
 - The panel shows a curated set of ~210 Lucide icons instead of the full set to keep the overlay bundle small.
 - `windows` crate 0.62 is used (same version as Tauri) to avoid duplicate builds and HWND type mismatches.
 - `command` actions use `std::process::Command` (CreateProcessW underneath) with `CREATE_NO_WINDOW` when hidden.
+
+## Phase 2
+- The overlay has a small gear button (bottom-right outside the ring / top-right corner of the grid) that opens the editor (SPEC 3.2); it is hit-tested in Rust like the slots.
+- Icons from executables are extracted at 256 px with `PrivateExtractIconsW` (fallback `SHGetFileInfoW`), scaled to ≤ 144 px and stored in the profile as a data URL, so the overlay never extracts icons at runtime; extraction results are cached on disk by path + mtime.
+- Custom images are scaled to fit 144×144 and stored as PNG data URLs; SVG stays vector; animated GIFs keep only the first frame.
+- The editor preview uses the backend's `panel_geometry` so it matches the overlay exactly, and is scaled down with CSS when the window is small.
+- Empty top-level slots in app profiles show the default profile's buttons faded when "fill from default" is on.
+- Clicking an action in the palette places it into the selected empty slot (or the first free one) as an alternative to dragging.
+- "Try it" sends keystrokes to the window that was in the foreground before the editor (focus is restored to it first).
+- Changing a layout that would drop buttons asks for confirmation and reports how many buttons are lost.
+- Each profile can be exported to `<name>.deckless.json`; importing always creates a new profile with fresh ids. "Export everything" writes one JSON with config + all profiles.
+- "Run as administrator" relaunches through the normal UAC prompt (`ShellExecuteEx` verb `runas`) at start; the new instance waits for the old one to exit (`--wait-pid`) so single-instance does not hand over to it. With autostart this means a UAC prompt at sign-in, which is the honest way (no UAC bypass).
+- Vitest runs with its own config without Vite plugins; on this machine it must be started from PowerShell/cmd (Git Bash working-directory form breaks Vitest 5).
+- All binaries (app, tests, examples) embed an app manifest with Common Controls v6 via `build.rs`, otherwise test binaries crash with STATUS_ENTRYPOINT_NOT_FOUND.
+
+## Phase 3
+- The active profile follows the foreground app continuously (WinEvent hook), not only when the panel opens; a manual `switchProfile` stays until the foreground app changes.
+- Starter profiles: one "Browser" profile for all installed Chromium browsers (Chrome, Edge, Brave, Opera share the same default shortcuts) and a separate Firefox profile (private window is Ctrl+Shift+P there).
+- The OBS starter profile is only offered when the OBS connection works; it gets record/stream/replay buttons plus up to five scene buttons.
+- The OBS client connects lazily (first OBS action, or at start when a profile contains OBS buttons), keeps one connection, reconnects with exponential backoff (1 s → 30 s) and tracks record/stream/mute state from events for live button states.
+- OBS was not installed on the build machine, so the OBS client is verified against a mock obs-websocket v5 server in an integration test (handshake with SHA-256 auth, scene switch, record toggle + RecordStateChanged event).
+- "Now playing" is read on a background thread every 2 s (only when a profile has such a button); the panel just reads the cache so WinRT never delays opening.
+- `audioDevice` uses `IPolicyConfig` (CLSID 870af99c-…, IID f8679f50-…, `SetDefaultEndpoint` is the 11th method) for all three roles; verified by switching the real default output and back.
+
+## Phase 4
+- The plugin host reports Stream Deck application version 6.8.0 to plugins (they compare it with their minimum version) and one virtual device `DECKLESS-VIRTUAL-0` of type 0.
+- Plugins without a `UUID` in the manifest (SDK v1) take it from the folder name `<uuid>.sdPlugin`; manifests listing OS platforms without Windows are incompatible; extension-less code paths are tried as `<name>.exe`.
+- Node plugins run with the system `node.exe` found on PATH (`CREATE_NO_WINDOW`); stdout/stderr go to `logs\plugin-<uuid>.log`.
+- HTML plugins run in a hidden Tauri webview; Property Inspectors are shown in an iframe in the editor. Both are served by a `deckplugin://` URI scheme that injects the `connectElgatoStreamDeckSocket(...)` call (parameters URI-encoded in the query string).
+- `showAlert` reuses the red "!" flash of failed actions; `showOk` and `switchToProfile` (bundled Stream Deck profiles) are logged and otherwise ignored.
+- `systemDidWakeUp` is detected from a jump of the wall clock (> 30 s over a 2 s sleep) instead of a power-broadcast window.
+- Two-state plugin actions toggle their state after keyUp unless the manifest sets `DisableAutomaticStates`, like the original app.
+- `setImage` SVG data URLs that are not base64 are re-encoded to base64 so they work in `<img>`.
+- Plugin buttons on the visible page stay "appeared" while the overlay is hidden; opening a folder in the panel switches the visible page, closing returns to the top page.
+- The test plugin fixture uses the WebSocket client built into Node.js 22+, so it needs no npm packages.
+- Plugin processes are assigned to a job object with KILL_ON_JOB_CLOSE so they never outlive the app.
+- Phases 2–4 were developed together (shared commands/modules) and committed in one commit; the acceptance results per phase are in PROGRESS.md.
+- WebView2 extra flags (`--in-process-gpu`, `--renderer-process-limit=1`) did not lower memory in a measurement, so Tauri's default browser arguments are kept.

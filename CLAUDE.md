@@ -13,6 +13,7 @@ Rust is installed via rustup in `%USERPROFILE%\.cargo\bin` (add to PATH in Git B
 - Rust tests: `cd src-tauri && cargo test`
 - Rust lint: `cd src-tauri && cargo clippy --all-targets -- -D warnings`
 - Frontend: `npm test` (Vitest), `npm run typecheck`, `npm run lint`, `npm run format:check`
+  - Run Vitest from PowerShell or cmd: started from Git Bash on this machine every suite fails with "Cannot read properties of undefined (reading 'config')" (path form of the working directory), while PowerShell works.
 - Screenshot helper for UI checks: `powershell -File scripts/screenshot.ps1 -Out shot.png`
 
 ## Layout

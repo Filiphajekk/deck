@@ -90,10 +90,17 @@ impl Core {
         new.sanitize();
         config::save(&paths::config_file(), &new)?;
         let old_lang = self.lang();
+        let old_autostart = self.config.read().autostart;
         *self.config.write() = new.clone();
         self.apply_config_to_hooks();
         if self.lang() != old_lang {
             crate::tray::refresh(&self.app, self.lang(), self.is_paused());
+        }
+        if new.autostart != old_autostart {
+            sync_autostart(&self.app);
+        }
+        if new.obs.enabled {
+            crate::obs::ensure_started();
         }
         let _ = self.app.emit("config:changed", &new);
         let _ = self.controller.send(Msg::ConfigChanged);
@@ -134,4 +141,25 @@ pub fn toggle_paused(app: &AppHandle) {
         let _ = core.controller.send(Msg::Close);
     }
     let _ = app.emit("app:paused", paused);
+}
+
+/// Applies the autostart setting to the registry Run key (SPEC 8: on by default).
+/// Dev builds never register themselves.
+pub fn sync_autostart(app: &AppHandle) {
+    use tauri_plugin_autostart::ManagerExt;
+    if cfg!(debug_assertions) {
+        return;
+    }
+    let Some(core) = try_core() else { return };
+    let want = core.config.read().autostart;
+    let mgr = app.autolaunch();
+    let have = mgr.is_enabled().unwrap_or(false);
+    let result = match (want, have) {
+        (true, false) => mgr.enable(),
+        (false, true) => mgr.disable(),
+        _ => Ok(()),
+    };
+    if let Err(e) = result {
+        tracing::warn!("cannot update autostart: {e}");
+    }
 }

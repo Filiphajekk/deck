@@ -19,6 +19,18 @@
   "bundle": {
     "active": true,
     "targets": ["nsis"],
+    "publisher": "Deckless",
+    "shortDescription": "Stream Deck bez Stream Decku",
+    "longDescription": "Panel tlačítek u kurzoru myši: zkratky, média, zvuk, okna, OBS a pluginy pro Stream Deck.",
+    "category": "Utility",
+    "fileAssociations": [
+      {
+        "ext": ["streamDeckPlugin"],
+        "name": "Stream Deck Plugin",
+        "description": "Stream Deck plugin",
+        "role": "Viewer"
+      }
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -1,4 +1,3 @@
-/// <reference types="vitest/config" />
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -23,9 +22,5 @@ export default defineConfig({
         overlay: fileURLToPath(new URL("overlay.html", import.meta.url)),
       },
     },
-  },
-  test: {
-    environment: "node",
-    include: ["src/**/*.test.ts"],
   },
 });

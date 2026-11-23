@@ -13,6 +13,9 @@ export interface PanelGeometry {
   cols: number;
   rows: number;
   margin: number;
+  gearX: number;
+  gearY: number;
+  gearR: number;
 }
 
 /** What one slot shows (resolved title/icon for the current state). */

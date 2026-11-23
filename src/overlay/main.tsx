@@ -73,6 +73,7 @@ function Overlay() {
         alert={view.alert}
         backLabel={t("overlay.back")}
         closeLabel={t("overlay.close")}
+        showGear
       />
       {view.hint && (
         <div className="absolute inset-x-6 bottom-1/2 translate-y-1/2 rounded-lg bg-black/85 p-3 text-center text-sm leading-snug text-white shadow-lg">

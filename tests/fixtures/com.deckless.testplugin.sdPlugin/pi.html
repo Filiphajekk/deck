@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      body { font-family: "Segoe UI", sans-serif; color: #e5e5e5; background: #2d2d2d; margin: 0; padding: 8px; font-size: 13px; }
+      button { background: #0ea5e9; color: #fff; border: 0; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+      p { color: #a3a3a3; }
+    </style>
+  </head>
+  <body>
+    <p>Count: <strong id="count">–</strong></p>
+    <button id="reset">Reset</button>
+    <script>
+      // Property Inspector entry point called by the host (Stream Deck SDK convention).
+      let ws, uuid, action, context;
+      function connectElgatoStreamDeckSocket(port, piUuid, registerEvent, info, actionInfo) {
+        uuid = piUuid;
+        const a = JSON.parse(actionInfo);
+        action = a.action;
+        context = a.context;
+        document.getElementById("count").textContent = a.payload?.settings?.count ?? 0;
+        ws = new WebSocket("ws://127.0.0.1:" + port);
+        ws.onopen = () => ws.send(JSON.stringify({ event: registerEvent, uuid }));
+        ws.onmessage = (ev) => {
+          const m = JSON.parse(ev.data);
+          if (m.event === "didReceiveSettings") document.getElementById("count").textContent = m.payload.settings.count ?? 0;
+          if (m.event === "sendToPropertyInspector") document.getElementById("count").textContent = m.payload.count;
+        };
+      }
+      document.getElementById("reset").onclick = () =>
+        ws && ws.send(JSON.stringify({ event: "sendToPlugin", action, context: uuid, payload: { reset: true } }));
+    </script>
+  </body>
+</html>

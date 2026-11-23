@@ -1,0 +1,25 @@
+{
+  "UUID": "com.deckless.testplugin",
+  "Name": "Deckless Test Plugin",
+  "Version": "1.0.0.0",
+  "Author": "Deckless",
+  "Description": "Minimal Stream Deck plugin used by the Deckless integration tests.",
+  "Icon": "icon",
+  "Category": "Deckless",
+  "SDKVersion": 2,
+  "CodePath": "plugin.js",
+  "Nodejs": { "Version": "20" },
+  "PropertyInspectorPath": "pi.html",
+  "OS": [{ "Platform": "windows", "MinimumVersion": "10" }],
+  "Software": { "MinimumVersion": "6.4" },
+  "Actions": [
+    {
+      "UUID": "com.deckless.testplugin.counter",
+      "Name": "Counter",
+      "Icon": "icon",
+      "Tooltip": "Counts how many times it was pressed",
+      "States": [{ "Image": "icon", "Title": "0" }],
+      "Controllers": ["Keypad"]
+    }
+  ]
+}

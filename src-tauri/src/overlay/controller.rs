@@ -61,6 +61,9 @@ pub struct Controller {
 /// Length of the close animation; the window is hidden right after it.
 const CLOSE_ANIMATION: Duration = Duration::from_millis(110);
 
+/// `selected` value of the gear (settings) button.
+pub const GEAR: i32 = -2;
+
 /// Starts the controller thread consuming hook events and internal messages.
 pub fn start(input: Receiver<InputEvent>, msgs: Receiver<Msg>) {
     std::thread::Builder::new()
@@ -289,6 +292,7 @@ impl Controller {
         if self.open.take().is_none() {
             return;
         }
+        crate::sdk_host::set_page_path(&[]);
         SHARED.set_overlay(false, None);
         let animate = core().config.read().appearance.animations;
         let _ = core().app.emit_to(
@@ -305,6 +309,7 @@ impl Controller {
 
     /// Hides immediately, without animation (before running an action, SPEC 4.5).
     pub fn close_now(&mut self) {
+        crate::sdk_host::set_page_path(&[]);
         self.open = None;
         self.pending_hide = None;
         window::hide(hwnd());
@@ -333,7 +338,9 @@ impl Controller {
             }
         }
         drop(store);
+        let path = o.path.clone();
         self.emit_view(None);
+        crate::sdk_host::set_page_path(&path);
     }
 
     /// Hit test of a physical screen point.
@@ -343,6 +350,9 @@ impl Controller {
         };
         let lx = (x - o.rect.left) as f64 / o.scale;
         let ly = (y - o.rect.top) as f64 / o.scale;
+        if (limit_radius || !o.held) && geometry::gear_hit(lx, ly, &o.geo) {
+            return Hit::Gear;
+        }
         match o.layout {
             Layout::Radial => {
                 let c = o.geo.width / 2.0;
@@ -369,6 +379,7 @@ impl Controller {
     fn hit_to_sel(h: Hit) -> Option<i32> {
         match h {
             Hit::Center => Some(-1),
+            Hit::Gear => Some(GEAR),
             Hit::Slot(i) => Some(i as i32),
             Hit::None => None,
         }
@@ -401,6 +412,7 @@ impl Controller {
             return;
         }
         match self.hit(x, y, true) {
+            Hit::Gear => self.open_editor(),
             Hit::Center => self.back_or_close(),
             Hit::Slot(i) => self.activate(i),
             Hit::None => self.close(),
@@ -421,6 +433,7 @@ impl Controller {
         }
         o.hold_mode = true;
         match o.selected {
+            Some(GEAR) => self.open_editor(),
             Some(i) if i >= 0 => self.activate(i as usize),
             _ => self.close(),
         }
@@ -476,12 +489,18 @@ impl Controller {
             NavKey::Escape => self.close(),
             NavKey::Back => self.back_or_close(),
             NavKey::Enter => match o.selected {
+                Some(GEAR) => self.open_editor(),
                 Some(-1) => self.back_or_close(),
                 Some(i) if i >= 0 => self.activate(i as usize),
                 _ => {}
             },
             _ => {}
         }
+    }
+
+    fn open_editor(&mut self) {
+        self.close_now();
+        crate::editor_window::open(&core().app, None);
     }
 
     fn back_or_close(&mut self) {

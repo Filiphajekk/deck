@@ -3,6 +3,8 @@
 #   down:<vk>  up:<vk>  tap:<vk>   (vk as hex like 0xA2 or decimal)
 #   move:<x>,<y>                     absolute physical screen position (per-monitor DPI aware)
 #   click / rclick                   left/right click at the current position
+#   ldown / lup                      left button down / up (for dragging)
+#   wheel:<delta>                    mouse wheel (120 = one notch up, -120 down)
 #   sleep:<ms>
 # Example (Ctrl+Shift+Space tap): down:0xA2 down:0xA0 tap:0x20 up:0xA0 up:0xA2
 param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Steps)
@@ -33,6 +35,8 @@ public static class Inj {
     i.u.mi.dy = (int)Math.Round((y - vy) * 65535.0 / (vh - 1));
     i.u.mi.dwFlags = 0x0001 | 0x8000 | 0x4000; Send(i);
   }
+  public static void Button(uint flag) { var i = new INPUT(); i.type = 0; i.u.mi.dwFlags = flag; Send(i); }
+  public static void Wheel(int delta) { var i = new INPUT(); i.type = 0; i.u.mi.dwFlags = 0x0800; i.u.mi.mouseData = (uint)delta; Send(i); }
   public static void Click(bool right) {
     var i = new INPUT(); i.type = 0; i.u.mi.dwFlags = right ? 0x0008u : 0x0002u; Send(i);
     i.u.mi.dwFlags = right ? 0x0010u : 0x0004u; Send(i);
@@ -52,6 +56,9 @@ foreach ($step in $Steps) {
     "move" { $xy = $parts[1].Split(","); [Inj]::Move([int]$xy[0], [int]$xy[1]) }
     "click" { [Inj]::Click($false) }
     "rclick" { [Inj]::Click($true) }
+    "ldown" { [Inj]::Button(0x0002) }
+    "lup" { [Inj]::Button(0x0004) }
+    "wheel" { [Inj]::Wheel([int]$parts[1]) }
     "sleep" { Start-Sleep -Milliseconds ([int]$parts[1]) }
   }
   Start-Sleep -Milliseconds 15

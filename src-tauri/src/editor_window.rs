@@ -24,7 +24,7 @@ pub fn open(app: &AppHandle, tab: Option<&str>) {
     };
     let result = WebviewWindowBuilder::new(app, EDITOR_LABEL, WebviewUrl::App(url.into()))
         .title(APP_NAME)
-        .inner_size(1280.0, 800.0)
+        .inner_size(1200.0, 740.0)
         .min_inner_size(960.0, 600.0)
         .center()
         // Native file drop is needed to install plugins by dragging; in-app dragging

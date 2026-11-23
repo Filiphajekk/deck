@@ -1,6 +1,6 @@
 // The panel as drawn in the overlay and in the editor preview (same look in both).
 // All geometry comes from the backend (PanelGeometry) so drawing matches hit testing.
-import { ArrowLeft, Folder, Plus, X } from "lucide-react";
+import { ArrowLeft, Folder, Plus, Settings, X } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 import { ICONS } from "../lib/icons";
 import type { Appearance } from "../types/config";
@@ -23,6 +23,8 @@ export interface PanelViewProps {
   dropTarget?: number | null;
   backLabel?: string;
   closeLabel?: string;
+  /** Overlay: draw the settings (gear) button. */
+  showGear?: boolean;
 }
 
 export function hexToRgba(hex: string, alpha: number): string {
@@ -144,6 +146,20 @@ export function PanelView(props: PanelViewProps) {
         <RadialPanel {...props} bg={bg} />
       ) : (
         <GridPanel {...props} bg={bg} />
+      )}
+      {props.showGear && (
+        <div
+          className="absolute flex items-center justify-center rounded-full border border-white/10 text-white/70"
+          style={{
+            left: g.gearX - g.gearR,
+            top: g.gearY - g.gearR,
+            width: g.gearR * 2,
+            height: g.gearR * 2,
+            background: props.selected === -2 ? hexToRgba(appearance.accent, 0.85) : bg,
+          }}
+        >
+          <Settings size={g.gearR * 1.2} />
+        </div>
       )}
     </div>
   );

@@ -9,7 +9,7 @@ Rust is installed via rustup in `%USERPROFILE%\.cargo\bin` (add to PATH in Git B
 
 ## Commands
 - Dev run: `npm run tauri dev`
-- Release build + NSIS installer: `npm run tauri build`
+- Release build + NSIS installer: `npm run tauri build`; `npm run installer` also copies it to `Deckless-Setup.exe` in the root (commit it so the README download links stay current)
 - Rust tests: `cd src-tauri && cargo test`
 - Rust lint: `cd src-tauri && cargo clippy --all-targets -- -D warnings`
 - Frontend: `npm test` (Vitest), `npm run typecheck`, `npm run lint`, `npm run format:check`

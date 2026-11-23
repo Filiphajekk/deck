@@ -12,8 +12,29 @@ The app is free and runs locally only. It has no accounts and no telemetry. It o
 
 ## Installation
 
-1. Run the installer `Deckless_x.y.z_x64-setup.exe`. It installs for the current user only, so no administrator rights are needed.
-2. After installation Deckless starts and sits in the notification area (next to the clock). By default it starts when you sign in.
+**Quickest:** run **[`Deckless-Setup.exe`](Deckless-Setup.exe)** from this folder (on GitHub: click it, then *Download raw file*).
+
+**From the command line** (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/Filiphajekk/deck/main/install.ps1 | iex
+```
+
+Silent install without the installer window:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Filiphajekk/deck/main/install.ps1))) -Silent
+```
+
+Or with plain `cmd`:
+
+```cmd
+curl -L -o %TEMP%\Deckless-Setup.exe https://github.com/Filiphajekk/deck/raw/main/Deckless-Setup.exe && %TEMP%\Deckless-Setup.exe
+```
+
+After installation Deckless starts and sits in the notification area (next to the clock). By default it starts when you sign in. It installs for the current user only, so no administrator rights are needed.
+
+The installer is not code-signed, so Windows SmartScreen may warn you. Click *More info* → *Run anyway*.
 
 You need Windows 10 or 11 (x64) with WebView2. WebView2 comes with Windows 11; on Windows 10 the installer adds it if it is missing.
 
@@ -78,6 +99,7 @@ You need:
 npm install
 npm run tauri dev       # development build
 npm run tauri build     # NSIS installer in src-tauri\target\release\bundle\nsis
+npm run installer       # the same, and copies it to Deckless-Setup.exe in the root
 ```
 
 Tests and checks:

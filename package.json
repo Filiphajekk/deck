@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "installer": "tauri build && node scripts/copy-installer.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.12.5",

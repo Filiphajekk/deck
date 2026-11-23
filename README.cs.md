@@ -12,8 +12,29 @@ Aplikace je zdarma, běží jen lokálně, nemá účty ani telemetrii. Po síti
 
 ## Instalace
 
-1. Spusť instalátor `Deckless_x.y.z_x64-setup.exe`. Instaluje se jen pro aktuálního uživatele, správce není potřeba.
-2. Po instalaci se Deckless spustí a usadí se v oznamovací oblasti (vedle hodin). Ve výchozím stavu se spouští po přihlášení.
+**Nejrychleji:** spusť **[`Deckless-Setup.exe`](Deckless-Setup.exe)** z hlavní složky (na GitHubu na něj klikni a dej *Download raw file*).
+
+**Z příkazové řádky** (PowerShell):
+
+```powershell
+irm https://raw.githubusercontent.com/Filiphajekk/deck/main/install.ps1 | iex
+```
+
+Tichá instalace bez okna instalátoru:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/Filiphajekk/deck/main/install.ps1))) -Silent
+```
+
+Nebo v obyčejném `cmd`:
+
+```cmd
+curl -L -o %TEMP%\Deckless-Setup.exe https://github.com/Filiphajekk/deck/raw/main/Deckless-Setup.exe && %TEMP%\Deckless-Setup.exe
+```
+
+Po instalaci se Deckless spustí a usadí se v oznamovací oblasti (vedle hodin). Ve výchozím stavu se spouští po přihlášení. Instaluje se jen pro aktuálního uživatele, správce není potřeba.
+
+Instalátor není digitálně podepsaný, takže Windows SmartScreen může varovat. Klikni na *Další informace* → *Přesto spustit*.
 
 Potřebuješ Windows 10 nebo 11 (x64) s WebView2. Ve Windows 11 je WebView2 předinstalovaný, do Windows 10 ho instalátor případně doinstaluje.
 
@@ -78,6 +99,7 @@ Potřebuješ:
 npm install
 npm run tauri dev       # vývojová verze
 npm run tauri build     # instalátor NSIS v src-tauri\target\release\bundle\nsis
+npm run installer       # totéž a navíc ho zkopíruje do Deckless-Setup.exe v hlavní složce
 ```
 
 Testy a kontroly:

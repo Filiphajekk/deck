@@ -1,16 +1,17 @@
-# Dev helper: captures the whole virtual screen into a PNG (used for manual/automated UI checks).
-param([string]$Out = "screen.png", [double]$Scale = 0.5)
+# Dev helper: captures the screen (or a region of it) into a PNG for UI checks.
+# -X/-Y/-W/-H select a region in physical pixels; default is the whole virtual screen.
+param([string]$Out = "screen.png", [double]$Scale = 0.5, [int]$X = 0, [int]$Y = 0, [int]$W = 0, [int]$H = 0)
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 Add-Type @"
-using System.Runtime.InteropServices;
-public static class Dpi { [DllImport("user32.dll")] public static extern bool SetProcessDPIAware(); }
+using System; using System.Runtime.InteropServices;
+public static class Dpi { [DllImport("user32.dll")] public static extern IntPtr SetProcessDpiAwarenessContext(IntPtr v); }
 "@
-[Dpi]::SetProcessDPIAware() | Out-Null
+[Dpi]::SetProcessDpiAwarenessContext([IntPtr](-4)) | Out-Null
 $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
-$bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+if ($W -eq 0) { $X = $b.Left; $Y = $b.Top; $W = $b.Width; $H = $b.Height }
+$bmp = New-Object System.Drawing.Bitmap $W, $H
 $g = [System.Drawing.Graphics]::FromImage($bmp)
-$g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
-$w = [int]($b.Width * $Scale); $h = [int]($b.Height * $Scale)
-$small = New-Object System.Drawing.Bitmap $bmp, $w, $h
+$g.CopyFromScreen($X, $Y, 0, 0, $bmp.Size)
+$small = New-Object System.Drawing.Bitmap $bmp, ([int]($W * $Scale)), ([int]($H * $Scale))
 $small.Save($Out, [System.Drawing.Imaging.ImageFormat]::Png)
-"$($b.Left),$($b.Top) $($b.Width)x$($b.Height)"
+"virtual screen: $($b.Left),$($b.Top) $($b.Width)x$($b.Height)"

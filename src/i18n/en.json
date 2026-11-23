@@ -1,0 +1,5 @@
+{
+  "overlay.back": "Back",
+  "overlay.close": "Close",
+  "overlay.uipiHint": "This window runs as administrator, so Windows blocks keystrokes into it. Turn on “Run as administrator” in settings."
+}

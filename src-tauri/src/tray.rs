@@ -14,14 +14,24 @@ pub struct TrayHandles {
 }
 
 pub fn create(app: &AppHandle, lang: Lang, paused: bool) -> tauri::Result<TrayHandles> {
-    let open = MenuItem::with_id(app, "open", tr(lang, Text::TrayOpenEditor), true, None::<&str>)?;
+    let open = MenuItem::with_id(
+        app,
+        "open",
+        tr(lang, Text::TrayOpenEditor),
+        true,
+        None::<&str>,
+    )?;
     let pause = MenuItem::with_id(app, "pause", pause_text(lang, paused), true, None::<&str>)?;
     let quit = MenuItem::with_id(app, "quit", tr(lang, Text::TrayQuit), true, None::<&str>)?;
     let sep = PredefinedMenuItem::separator(app)?;
     let menu = Menu::with_items(app, &[&open, &pause, &sep, &quit])?;
 
     let icon = TrayIconBuilder::with_id(TRAY_ID)
-        .icon(app.default_window_icon().cloned().expect("app icon is bundled"))
+        .icon(
+            app.default_window_icon()
+                .cloned()
+                .expect("app icon is bundled"),
+        )
         .tooltip(tooltip(lang, paused))
         .menu(&menu)
         .show_menu_on_left_click(false)
@@ -46,7 +56,10 @@ pub fn create(app: &AppHandle, lang: Lang, paused: bool) -> tauri::Result<TrayHa
         })
         .build(app)?;
 
-    Ok(TrayHandles { icon, pause_item: pause })
+    Ok(TrayHandles {
+        icon,
+        pause_item: pause,
+    })
 }
 
 fn pause_text(lang: Lang, paused: bool) -> &'static str {

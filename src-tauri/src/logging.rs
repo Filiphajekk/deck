@@ -6,8 +6,20 @@ use tracing_subscriber::{fmt, prelude::*, EnvFilter};
 
 use crate::paths;
 
-/// Initializes the global subscriber. Keep the returned guard alive for the whole process.
-pub fn init() -> Option<WorkerGuard> {
+/// Guard of the background log writer; dropping it writes out pending lines.
+static GUARD: parking_lot::Mutex<Option<WorkerGuard>> = parking_lot::Mutex::new(None);
+
+/// Writes out buffered log lines (call right before the process ends).
+pub fn flush() {
+    drop(GUARD.lock().take());
+}
+
+pub fn init() {
+    let guard = init_subscriber();
+    *GUARD.lock() = guard;
+}
+
+fn init_subscriber() -> Option<WorkerGuard> {
     let _ = paths::ensure_dirs();
     let filter = EnvFilter::try_from_env("DECKLESS_LOG")
         .unwrap_or_else(|_| EnvFilter::new("info,tao=warn,wry=warn,tungstenite=warn"));

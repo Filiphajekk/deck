@@ -21,7 +21,7 @@ describe("plugin store", () => {
     expect(
       filterStore(catalog, "communication", "", "en").every((p) => p.category === "communication"),
     ).toBe(true);
-    expect(filterStore(catalog, null, "discord", "cs").map((p) => p.id)).toContain("discord");
+    expect(filterStore(catalog, null, "teams", "cs").map((p) => p.id)).toContain("teams");
     expect(filterStore(catalog, null, "spotify", "en").map((p) => p.id)).toContain("spotify");
     expect(filterStore(catalog, null, "zzzz", "en")).toEqual([]);
   });

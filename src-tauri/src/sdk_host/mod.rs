@@ -71,7 +71,9 @@ struct Runtime2 {
 #[derive(Default)]
 struct Inner {
     plugins: BTreeMap<String, PluginEntry>,
-    connections: HashMap<String, mpsc::UnboundedSender<String>>,
+    /// Live plugin sockets: uuid -> (connection id, sender). The id makes sure a closing old
+    /// socket of a restarted plugin cannot remove the connection of the new process.
+    connections: HashMap<String, (u64, mpsc::UnboundedSender<String>)>,
     pis: HashMap<String, PiConn>,
     /// Appeared instances: context -> (plugin uuid, instance).
     visible: BTreeMap<String, (String, Instance)>,
@@ -91,6 +93,8 @@ pub struct Host {
 }
 
 static HOST: OnceLock<Arc<Host>> = OnceLock::new();
+static NEXT_GENERATION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+static NEXT_CONNECTION: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(1);
 
 pub fn host() -> Option<&'static Arc<Host>> {
     HOST.get()
@@ -350,7 +354,9 @@ impl Host {
             ) {
                 return;
             }
-            p.generation += 1;
+            // Globally unique, so a watcher of an older process (even of a reinstalled
+            // plugin entry) can never mistake the new process for its own.
+            p.generation = NEXT_GENERATION.fetch_add(1, std::sync::atomic::Ordering::SeqCst) + 1;
             p.status = PluginStatus::Starting;
             let _ = device;
             (
@@ -482,7 +488,6 @@ impl Host {
                         true
                     }
                 };
-                host.inner.lock().connections.remove(&uuid);
                 tracing::warn!(plugin = %uuid, %status, restart, "plugin exited");
                 host.notify_editor();
                 if restart {
@@ -520,6 +525,28 @@ impl Host {
         let uuids: Vec<String> = self.inner.lock().plugins.keys().cloned().collect();
         for u in uuids {
             self.stop_plugin(&u);
+        }
+    }
+
+    /// On app exit: terminate plugin processes without waiting for them. (They are in a
+    /// kill-on-close job object anyway, so nothing can outlive the app.)
+    pub fn kill_all_now(&self) {
+        let children: Vec<Arc<Mutex<Child>>> = {
+            let mut inner = self.inner.lock();
+            inner.connections.clear();
+            inner
+                .plugins
+                .values_mut()
+                .filter_map(|p| {
+                    p.status = PluginStatus::Stopped;
+                    p.child.take()
+                })
+                .collect()
+        };
+        for c in children {
+            if let Some(mut c) = c.try_lock() {
+                let _ = c.kill();
+            }
         }
     }
 
@@ -649,7 +676,7 @@ impl Host {
     // ---- visibility and key presses -------------------------------------------------
 
     fn send_to(&self, plugin: &str, msg: &Value) {
-        if let Some(tx) = self.inner.lock().connections.get(plugin) {
+        if let Some((_, tx)) = self.inner.lock().connections.get(plugin) {
             let _ = tx.send(msg.to_string());
         }
     }
@@ -726,7 +753,11 @@ impl Host {
                 None => "the plugin is not installed".to_string(),
                 Some(PluginStatus::NodeMissing) =>
                     "the plugin needs Node.js (nodejs.org)".to_string(),
-                Some(s) => format!("the plugin is not running ({s:?})"),
+                Some(PluginStatus::Running | PluginStatus::Starting) =>
+                    "the plugin is just starting; try again in a moment".to_string(),
+                Some(PluginStatus::Error(e)) => format!("the plugin stopped working: {e}"),
+                Some(PluginStatus::Incompatible(e)) => format!("the plugin cannot run here: {e}"),
+                Some(PluginStatus::Stopped) => "the plugin is not running".to_string(),
             });
         }
         let visible = self.inner.lock().visible.contains_key(context);
@@ -866,13 +897,13 @@ impl Host {
             let _ = sink.close().await;
         });
         enum Kind {
-            Plugin(String),
+            Plugin(String, u64),
             Pi(String),
         }
         let kind = match messages::parse(&first)? {
             Incoming::RegisterPlugin { uuid } => {
-                self.on_plugin_registered(&uuid, tx);
-                Kind::Plugin(uuid)
+                let id = self.on_plugin_registered(&uuid, tx);
+                Kind::Plugin(uuid, id)
             }
             Incoming::RegisterPropertyInspector { uuid } => {
                 self.on_pi_registered(&uuid, tx);
@@ -895,13 +926,20 @@ impl Host {
                 }
             };
             match &kind {
-                Kind::Plugin(uuid) => self.on_plugin_message(uuid, parsed),
+                Kind::Plugin(uuid, _) => self.on_plugin_message(uuid, parsed),
                 Kind::Pi(uuid) => self.on_pi_message(uuid, parsed),
             }
         }
         match kind {
-            Kind::Plugin(uuid) => {
-                self.inner.lock().connections.remove(&uuid);
+            Kind::Plugin(uuid, id) => {
+                let mut inner = self.inner.lock();
+                if inner
+                    .connections
+                    .get(&uuid)
+                    .is_some_and(|(cid, _)| *cid == id)
+                {
+                    inner.connections.remove(&uuid);
+                }
             }
             Kind::Pi(uuid) => {
                 if let Some(pi) = self.inner.lock().pis.remove(&uuid) {
@@ -919,11 +957,12 @@ impl Host {
         Ok(())
     }
 
-    fn on_plugin_registered(&self, uuid: &str, tx: mpsc::UnboundedSender<String>) {
+    fn on_plugin_registered(&self, uuid: &str, tx: mpsc::UnboundedSender<String>) -> u64 {
         tracing::info!(plugin = uuid, "plugin registered");
+        let conn_id = NEXT_CONNECTION.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
         let (device, visible, monitored) = {
             let mut inner = self.inner.lock();
-            inner.connections.insert(uuid.to_string(), tx);
+            inner.connections.insert(uuid.to_string(), (conn_id, tx));
             if let Some(p) = inner.plugins.get_mut(uuid) {
                 p.status = PluginStatus::Running;
             }
@@ -954,6 +993,7 @@ impl Host {
             self.send_to(uuid, &messages::application_event(true, &app));
         }
         self.notify_editor();
+        conn_id
     }
 
     fn instance_for(&self, plugin: &str, context: &str) -> Instance {

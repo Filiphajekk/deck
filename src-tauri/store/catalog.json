@@ -3,26 +3,6 @@
   "checked": "2026-11-24",
   "plugins": [
     {
-      "id": "discord",
-      "uuid": "com.fredemmott.discord",
-      "name": "Discord",
-      "author": "Fred Emmott",
-      "repo": "fredemmott/StreamDeck-Discord",
-      "url": "https://github.com/fredemmott/StreamDeck-Discord/releases/download/v4.0.4/com.fredemmott.discord.streamDeckPlugin",
-      "version": "v4.0.4",
-      "category": "communication",
-      "license": "MIT",
-      "runtime": "exe",
-      "description": {
-        "cs": "Ztlumení mikrofonu a zvuku a přepínání push-to-talk v Discordu. Komunitní plugin, který už autor neudržuje.",
-        "en": "Mute, deafen and push-to-talk switching for Discord. A community plugin that is no longer maintained."
-      },
-      "requires": {
-        "cs": "Nepřihlašuje se přes prohlížeč: v Discord Developer Portalu si založ aplikaci, přidej redirect https://localhost/ a její Client ID a Client Secret vlož do nastavení tlačítka (vpravo v editoru). Pak Discord požádá o povolení.",
-        "en": "No browser login: create an application in the Discord Developer Portal, add the redirect https://localhost/ and paste its Client ID and Client Secret into the button settings (right side of the editor). Discord then asks for permission."
-      }
-    },
-    {
       "id": "teams",
       "uuid": "com.bad-duck.teamscontrol",
       "name": "Microsoft Teams",

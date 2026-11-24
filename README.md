@@ -56,7 +56,7 @@ You need Windows 10 or 11 (x64) with WebView2. WebView2 comes with Windows 11; o
 
 ### Plugin store
 
-The **Plugins → Store** tab has 40 hand-picked open-source plugins that work on Windows: Discord, Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, JetBrains IDEs, SimHub and more. Pick a category or search, then click **Install**. The plugin is downloaded straight from its author's GitHub releases (the newest one, or a verified version if GitHub is unreachable). Each plugin has its own licence.
+The **Plugins → Store** tab has 39 hand-picked open-source plugins that work on Windows: Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, JetBrains IDEs, SimHub and more. Pick a category or search, then click **Install**. The plugin is downloaded straight from its author's GitHub releases (the newest one, or a verified version if GitHub is unreachable). Each plugin has its own licence.
 
 The catalog is `src-tauri/store/catalog.json`; `node scripts/store-check.mjs` checks every entry (release file present, readable manifest with Windows code).
 

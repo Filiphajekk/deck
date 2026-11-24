@@ -38,10 +38,7 @@ pub fn create(app: &AppHandle, lang: Lang, paused: bool) -> tauri::Result<TrayHa
         .on_menu_event(|app, event| match event.id.as_ref() {
             "open" => crate::editor_window::open(app, None),
             "pause" => crate::app::toggle_paused(app),
-            "quit" => {
-                tracing::info!("quit requested from tray");
-                app.exit(0);
-            }
+            "quit" => crate::app::quit(app),
             _ => {}
         })
         .on_tray_icon_event(|tray, event| {

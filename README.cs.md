@@ -56,7 +56,7 @@ Potřebuješ Windows 10 nebo 11 (x64) s WebView2. Ve Windows 11 je WebView2 pře
 
 ### Obchod s pluginy
 
-Na kartě **Pluginy → Obchod** je 40 vybraných open-source pluginů, které fungují ve Windows: Discord, Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, IDE od JetBrains, SimHub a další. Vyber kategorii nebo hledej a klikni na **Instalovat**. Plugin se stáhne přímo z GitHubu jeho autora (nejnovější verze, nebo ověřená verze, když GitHub nejde načíst). Každý plugin má vlastní licenci.
+Na kartě **Pluginy → Obchod** je 39 vybraných open-source pluginů, které fungují ve Windows: Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, IDE od JetBrains, SimHub a další. Vyber kategorii nebo hledej a klikni na **Instalovat**. Plugin se stáhne přímo z GitHubu jeho autora (nejnovější verze, nebo ověřená verze, když GitHub nejde načíst). Každý plugin má vlastní licenci.
 
 Katalog je v `src-tauri/store/catalog.json`; `node scripts/store-check.mjs` zkontroluje všechny položky (soubor v release, čitelný manifest s kódem pro Windows).
 

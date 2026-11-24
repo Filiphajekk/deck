@@ -10,7 +10,9 @@ use windows::Win32::Foundation::{HWND, LPARAM, WPARAM};
 use windows::Win32::System::Diagnostics::Debug::{
     SetUnhandledExceptionFilter, EXCEPTION_CONTINUE_SEARCH, EXCEPTION_POINTERS,
 };
-use windows::Win32::UI::WindowsAndMessaging::{SendMessageTimeoutW, SMTO_ABORTIFHUNG, WM_NULL};
+use windows::Win32::UI::WindowsAndMessaging::{
+    IsWindow, SendMessageTimeoutW, SMTO_ABORTIFHUNG, WM_NULL,
+};
 
 use crate::paths;
 
@@ -50,6 +52,12 @@ pub fn install_crash_handler() {
 }
 
 static UI_HWND: AtomicIsize = AtomicIsize::new(0);
+static EXITING: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Stops the UI watchdog (windows are being closed, which is not a hang).
+pub fn set_exiting() {
+    EXITING.store(true, Ordering::SeqCst);
+}
 
 /// Pings a window of the UI thread every 2 s and logs when it stops answering (the state
 /// Windows reports as "not responding"), and how long it took to recover.
@@ -61,7 +69,13 @@ pub fn start_ui_watchdog(hwnd: isize) {
             let mut hung_since: Option<Instant> = None;
             loop {
                 std::thread::sleep(Duration::from_secs(2));
+                if EXITING.load(Ordering::SeqCst) {
+                    return;
+                }
                 let h = HWND(UI_HWND.load(Ordering::SeqCst) as *mut _);
+                if !unsafe { IsWindow(Some(h)) }.as_bool() {
+                    continue;
+                }
                 let mut result = 0usize;
                 let ok = unsafe {
                     SendMessageTimeoutW(

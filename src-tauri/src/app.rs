@@ -163,3 +163,21 @@ pub fn sync_autostart(app: &AppHandle) {
         tracing::warn!("cannot update autostart: {e}");
     }
 }
+
+/// "Quit" from the tray. Plugins are killed right away and a fallback ends the process
+/// if closing the windows takes too long, so quitting can never hang.
+pub fn quit(app: &AppHandle) {
+    tracing::info!("quit requested");
+    crate::diag::set_exiting();
+    if let Some(h) = crate::sdk_host::host() {
+        h.kill_all_now();
+    }
+    crate::input::hook::stop();
+    std::thread::spawn(|| {
+        std::thread::sleep(std::time::Duration::from_secs(3));
+        tracing::warn!("shutdown took too long; exiting now");
+        crate::logging::flush();
+        std::process::exit(0);
+    });
+    app.exit(0);
+}

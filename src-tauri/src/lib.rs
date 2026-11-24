@@ -62,7 +62,7 @@ fn elevate_if_configured() -> bool {
 }
 
 pub fn run() {
-    let _log_guard = logging::init();
+    logging::init();
     diag::install_crash_handler();
     tracing::info!(
         version = env!("CARGO_PKG_VERSION"),
@@ -196,11 +196,14 @@ pub fn run() {
             }
         }
         RunEvent::Exit => {
+            // Never wait for plugins here: a slow or hung plugin must not keep the app
+            // alive. They are killed together with the app by their job object anyway.
             input::hook::stop();
             if let Some(h) = sdk_host::host() {
-                h.stop_all();
+                h.kill_all_now();
             }
             tracing::info!("exiting");
+            logging::flush();
         }
         _ => {}
     });

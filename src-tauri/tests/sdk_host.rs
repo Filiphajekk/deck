@@ -185,3 +185,33 @@ fn protected_elgato_manifest_gives_clear_error() {
         assert_eq!(format!("{err:#}"), "i18n:plugins.protected");
     }
 }
+
+#[test]
+fn reinstalling_a_running_plugin_keeps_it_connected() {
+    if find_node().is_none() {
+        return;
+    }
+    let tmp = tempfile::tempdir().unwrap();
+    let plugins = tmp.path().join("plugins");
+    let logs = tmp.path().join("logs");
+    std::fs::create_dir_all(&logs).unwrap();
+    let host = Host::start(&plugins, &tmp.path().join("s"), &logs, None).unwrap();
+    host.install(&fixture()).unwrap();
+    wait_for("first registration", || host.is_connected(PLUGIN));
+    show_button(&host);
+
+    // Reinstall twice while it runs: the old process and its socket go away while the
+    // new one registers. Before the fix the old socket closing removed the new connection
+    // and an old watcher started a second copy of the plugin.
+    for _ in 0..2 {
+        host.install(&fixture()).unwrap();
+        wait_for("registration after reinstall", || host.is_connected(PLUGIN));
+    }
+    // Give stale watchers/sockets time to (wrongly) act.
+    std::thread::sleep(Duration::from_millis(1500));
+    assert!(host.is_connected(PLUGIN), "plugin lost its connection after reinstall");
+    assert_eq!(host.status(PLUGIN), Some(PluginStatus::Running));
+    host.press(PLUGIN, ACTION, CONTEXT, (1, 0)).unwrap();
+    wait_for("press works", || host.button_settings(PLUGIN, CONTEXT)["count"] == 1);
+    host.kill_all_now();
+}

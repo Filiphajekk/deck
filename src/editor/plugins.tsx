@@ -8,6 +8,7 @@ import { useT } from "../i18n";
 import { newId } from "../lib/ids";
 import type { Button, Icon, Profile, Visual } from "../types/profile";
 import type { PaletteItem } from "./ActionPalette";
+import { errorText } from "./errorText";
 import { Btn, cx } from "./ui";
 import { MARKETPLACE_URL } from "./WelcomeWizard";
 
@@ -46,12 +47,6 @@ interface Defaults {
 }
 
 const NODE_URL = "https://nodejs.org/";
-
-/** Backend errors of the form `i18n:<key>` are translated; anything else is shown as is. */
-function errorText(t: (k: string) => string, msg: string): string {
-  const m = /^(?:Error: )?i18n:([w.]+)/.exec(msg);
-  return m ? t(m[1]) : msg;
-}
 
 function usePlugins() {
   const [plugins, setPlugins] = useState<PluginInfo[]>([]);

@@ -14,12 +14,12 @@
       "license": "MIT",
       "runtime": "exe",
       "description": {
-        "cs": "Ztlumení mikrofonu a zvuku, push-to-talk a další ovládání Discordu. Připojuje se přes oficiální přihlášení Discordu.",
-        "en": "Mute, deafen, push-to-talk and more for Discord. Connects through the official Discord login."
+        "cs": "Ztlumení mikrofonu a zvuku a přepínání push-to-talk v Discordu. Komunitní plugin, který už autor neudržuje.",
+        "en": "Mute, deafen and push-to-talk switching for Discord. A community plugin that is no longer maintained."
       },
       "requires": {
-        "cs": "Při prvním použití povol přístup v Discordu.",
-        "en": "Allow access in Discord on first use."
+        "cs": "Nepřihlašuje se přes prohlížeč: v Discord Developer Portalu si založ aplikaci, přidej redirect https://localhost/ a její Client ID a Client Secret vlož do nastavení tlačítka (vpravo v editoru). Pak Discord požádá o povolení.",
+        "en": "No browser login: create an application in the Discord Developer Portal, add the redirect https://localhost/ and paste its Client ID and Client Secret into the button settings (right side of the editor). Discord then asks for permission."
       }
     },
     {
@@ -78,8 +78,8 @@
         "en": "Playback, volume, liked songs, playlists and cover art for Spotify."
       },
       "requires": {
-        "cs": "Potřebuje Node.js a přihlášení ke Spotify.",
-        "en": "Needs Node.js and a Spotify login."
+        "cs": "Potřebuje Spotify Premium a Node.js. Dej na panel tlačítko Setup a stiskni ho, v prohlížeči se otevře průvodce přihlášením.",
+        "en": "Needs Spotify Premium and Node.js. Put the Setup button on the panel and press it; a sign-in guide opens in your browser."
       }
     },
     {

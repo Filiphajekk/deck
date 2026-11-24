@@ -1,0 +1,746 @@
+{
+  "version": 1,
+  "checked": "2026-11-24",
+  "plugins": [
+    {
+      "id": "discord",
+      "uuid": "com.fredemmott.discord",
+      "name": "Discord",
+      "author": "Fred Emmott",
+      "repo": "fredemmott/StreamDeck-Discord",
+      "url": "https://github.com/fredemmott/StreamDeck-Discord/releases/download/v4.0.4/com.fredemmott.discord.streamDeckPlugin",
+      "version": "v4.0.4",
+      "category": "communication",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Ztlumení mikrofonu a zvuku, push-to-talk a další ovládání Discordu. Připojuje se přes oficiální přihlášení Discordu.",
+        "en": "Mute, deafen, push-to-talk and more for Discord. Connects through the official Discord login."
+      },
+      "requires": {
+        "cs": "Při prvním použití povol přístup v Discordu.",
+        "en": "Allow access in Discord on first use."
+      }
+    },
+    {
+      "id": "teams",
+      "uuid": "com.bad-duck.teamscontrol",
+      "name": "Microsoft Teams",
+      "author": "danswett",
+      "repo": "danswett/streamdeck-teams-control",
+      "url": "https://github.com/danswett/streamdeck-teams-control/releases/download/v1.11.6/com.bad-duck.teamscontrol.streamDeckPlugin",
+      "version": "v1.11.6",
+      "category": "communication",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Ovládání schůzek v Teams: mikrofon, kamera, zvednutá ruka, sdílení obrazovky a opuštění schůzky se živým stavem.",
+        "en": "Control Teams meetings: microphone, camera, raise hand, screen sharing and leave, with live state."
+      },
+      "requires": {
+        "cs": "Potřebuje nový Microsoft Teams a Node.js.",
+        "en": "Needs the new Microsoft Teams and Node.js."
+      }
+    },
+    {
+      "id": "googlemeet",
+      "uuid": "com.chrisregado.googlemeet",
+      "name": "Google Meet",
+      "author": "Chris Regado",
+      "repo": "ChrisRegado/streamdeck-googlemeet",
+      "url": "https://github.com/ChrisRegado/streamdeck-googlemeet/releases/download/v1.6.3/com.chrisregado.googlemeet.streamDeckPlugin",
+      "version": "v1.6.3",
+      "category": "communication",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Mikrofon, kamera a další ovládání Google Meet přímo z panelu.",
+        "en": "Microphone, camera and more for Google Meet right from the panel."
+      },
+      "requires": {
+        "cs": "Potřebuje doplněk do prohlížeče od stejného autora.",
+        "en": "Needs the author's browser extension."
+      }
+    },
+    {
+      "id": "spotify",
+      "uuid": "com.ntanis.essentials-for-spotify",
+      "name": "Essentials for Spotify",
+      "author": "ntanis-dev",
+      "repo": "ntanis-dev/essentials-for-spotify",
+      "url": "https://github.com/ntanis-dev/essentials-for-spotify/releases/download/v1.2.0.0/com.ntanis.essentials-for-spotify.streamDeckPlugin",
+      "version": "v1.2.0.0",
+      "category": "music",
+      "license": "custom",
+      "runtime": "node",
+      "description": {
+        "cs": "Přehrávání, hlasitost, oblíbené skladby, playlisty a obal alba pro Spotify.",
+        "en": "Playback, volume, liked songs, playlists and cover art for Spotify."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js a přihlášení ke Spotify.",
+        "en": "Needs Node.js and a Spotify login."
+      }
+    },
+    {
+      "id": "cider",
+      "uuid": "sh.cider.streamdeck",
+      "name": "CiderDeck (Apple Music)",
+      "author": "Cider Collective",
+      "repo": "ciderapp/CiderDeck",
+      "url": "https://github.com/ciderapp/CiderDeck/releases/download/v4.0.0/sh.cider.streamdeck.streamDeckPlugin",
+      "version": "v4.0.0",
+      "category": "music",
+      "license": "—",
+      "runtime": "node",
+      "description": {
+        "cs": "Ovládání přehrávače Cider pro Apple Music: přehrávání, hlasitost, oblíbené.",
+        "en": "Control the Cider player for Apple Music: playback, volume, favourites."
+      },
+      "requires": {
+        "cs": "Potřebuje aplikaci Cider a Node.js.",
+        "en": "Needs the Cider app and Node.js."
+      }
+    },
+    {
+      "id": "sonos",
+      "uuid": "de.boriskemper.sonos-controller",
+      "name": "Sonos Controller",
+      "author": "rocklobster42195",
+      "repo": "rocklobster42195/streamdeck-sonos-controller",
+      "url": "https://github.com/rocklobster42195/streamdeck-sonos-controller/releases/download/v0.5.0-beta.12/de.boriskemper.sonos-controller-v0.5.0-beta.12.streamDeckPlugin",
+      "version": "v0.5.0-beta.12",
+      "category": "music",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Přehrávání, hlasitost a obal alba pro reproduktory Sonos (beta).",
+        "en": "Playback, volume and cover art for Sonos speakers (beta)."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js.",
+        "en": "Needs Node.js."
+      }
+    },
+    {
+      "id": "audioswitcher",
+      "uuid": "com.fredemmott.audiooutputswitch",
+      "name": "Audio Switcher",
+      "author": "Fred Emmott",
+      "repo": "fredemmott/StreamDeck-AudioSwitcher",
+      "url": "https://github.com/fredemmott/StreamDeck-AudioSwitcher/releases/download/v3.2.1/com.fredemmott.audiooutputswitch.streamDeckPlugin",
+      "version": "v3.2.1",
+      "category": "audio",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Přepínání výchozího zvukového výstupu a vstupu jedním tlačítkem.",
+        "en": "Switch the default audio output and input with one button."
+      }
+    },
+    {
+      "id": "audiomute",
+      "uuid": "com.fredemmott.micmutetoggle",
+      "name": "Audio Mute",
+      "author": "Fred Emmott",
+      "repo": "fredemmott/StreamDeck-AudioMute",
+      "url": "https://github.com/fredemmott/StreamDeck-AudioMute/releases/download/v3.3.1/com.fredemmott.micmutetoggle.streamDeckPlugin",
+      "version": "v3.3.1",
+      "category": "audio",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Ztlumení libovolného zvukového zařízení (třeba mikrofonu) se stavem na tlačítku.",
+        "en": "Mute any audio device (such as a microphone) with the state shown on the button."
+      }
+    },
+    {
+      "id": "midi",
+      "uuid": "com.sorskoot.midi",
+      "name": "MIDI",
+      "author": "sorskoot",
+      "repo": "sorskoot/StreamDeck-Midi-plugin",
+      "url": "https://github.com/sorskoot/StreamDeck-Midi-plugin/releases/download/1.42/com.sorskoot.midi.streamDeckPlugin",
+      "version": "1.42",
+      "category": "audio",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Posílání MIDI zpráv (noty, CC) do hudebního softwaru a zařízení.",
+        "en": "Send MIDI messages (notes, CC) to music software and devices."
+      }
+    },
+    {
+      "id": "osc",
+      "uuid": "de.shells.osc",
+      "name": "OSC",
+      "author": "shells-dw",
+      "repo": "shells-dw/StreamDeck-OSC",
+      "url": "https://github.com/shells-dw/StreamDeck-OSC/releases/download/v3.2.1/de.shells.osc.streamDeckPlugin",
+      "version": "v3.2.1",
+      "category": "audio",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Posílání a příjem OSC zpráv pro mixy, světla a hudební software.",
+        "en": "Send and receive OSC messages for mixers, lights and music software."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js.",
+        "en": "Needs Node.js."
+      }
+    },
+    {
+      "id": "trackaudio",
+      "uuid": "com.neil-enns.trackaudio",
+      "name": "TrackAudio",
+      "author": "Neil Enns",
+      "repo": "neilenns/streamdeck-trackaudio",
+      "url": "https://github.com/neilenns/streamdeck-trackaudio/releases/download/v4.4.0/com.neil-enns.trackaudio.streamDeckPlugin",
+      "version": "v4.4.0",
+      "category": "audio",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Ovládání TrackAudio pro hlasovou komunikaci na síti VATSIM.",
+        "en": "Control TrackAudio for voice communication on the VATSIM network."
+      },
+      "requires": {
+        "cs": "Potřebuje TrackAudio a Node.js.",
+        "en": "Needs TrackAudio and Node.js."
+      }
+    },
+    {
+      "id": "multiobs",
+      "uuid": "dev.theca11.multiobs",
+      "name": "Multi OBS Controller",
+      "author": "theca11",
+      "repo": "theca11/multi-obs-controller",
+      "url": "https://github.com/theca11/multi-obs-controller/releases/download/v0.8.2/Multi-OBS-Controller-Plugin-v0.8.2.streamDeckPlugin",
+      "version": "v0.8.2",
+      "category": "streaming",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Ovládání jedné nebo dvou instancí OBS: scény, nahrávání, stream, zdroje, filtry.",
+        "en": "Control one or two OBS instances: scenes, recording, streaming, sources, filters."
+      },
+      "requires": {
+        "cs": "Zapni v OBS WebSocket server.",
+        "en": "Turn on the WebSocket server in OBS."
+      }
+    },
+    {
+      "id": "advss",
+      "uuid": "com.warmuptill.advanced-scene-switcher",
+      "name": "Advanced Scene Switcher",
+      "author": "WarmUpTill",
+      "repo": "WarmUpTill/advanced-scene-switcher-streamdeck-plugin",
+      "url": "https://github.com/WarmUpTill/advanced-scene-switcher-streamdeck-plugin/releases/download/1.0.0/com.warmuptill.advanced-scene-switcher.streamDeckPlugin",
+      "version": "1.0.0",
+      "category": "streaming",
+      "license": "GPL-2.0",
+      "runtime": "node",
+      "description": {
+        "cs": "Spouštění maker a podmínek pluginu Advanced Scene Switcher v OBS.",
+        "en": "Trigger macros and conditions of the Advanced Scene Switcher plugin in OBS."
+      },
+      "requires": {
+        "cs": "Potřebuje plugin Advanced Scene Switcher v OBS a Node.js.",
+        "en": "Needs the Advanced Scene Switcher plugin in OBS and Node.js."
+      }
+    },
+    {
+      "id": "homeassistant",
+      "uuid": "de.perdoctus.streamdeck.homeassistant",
+      "name": "Home Assistant",
+      "author": "cgiesche",
+      "repo": "cgiesche/streamdeck-homeassistant",
+      "url": "https://github.com/cgiesche/streamdeck-homeassistant/releases/download/3.8.4/de.perdoctus.streamdeck.homeassistant.streamDeckPlugin",
+      "version": "3.8.4",
+      "category": "smarthome",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Ovládání chytré domácnosti Home Assistant: světla, scény, skripty a stavy zařízení.",
+        "en": "Control your Home Assistant smart home: lights, scenes, scripts and device states."
+      },
+      "requires": {
+        "cs": "Potřebuje server Home Assistant a přístupový token.",
+        "en": "Needs a Home Assistant server and an access token."
+      }
+    },
+    {
+      "id": "yeelight",
+      "uuid": "com.skynewz.yeelight",
+      "name": "Yeelight",
+      "author": "SkYNewZ",
+      "repo": "SkYNewZ/streamdeck-yeelight",
+      "url": "https://github.com/SkYNewZ/streamdeck-yeelight/releases/download/v0.0.3/com.skynewz.yeelight.streamDeckPlugin",
+      "version": "v0.0.3",
+      "category": "smarthome",
+      "license": "GPL-3.0",
+      "runtime": "exe",
+      "description": {
+        "cs": "Zapínání, jas a barvy světel Yeelight v místní síti.",
+        "en": "Power, brightness and colour of Yeelight lights on your network."
+      },
+      "requires": {
+        "cs": "Zapni v aplikaci Yeelight LAN Control.",
+        "en": "Turn on LAN Control in the Yeelight app."
+      }
+    },
+    {
+      "id": "pihole",
+      "uuid": "us.johnholbrook.pihole",
+      "name": "Pi-hole",
+      "author": "John Holbrook",
+      "repo": "johnholbrook/streamdeck-pihole",
+      "url": "https://github.com/johnholbrook/streamdeck-pihole/releases/download/v2.0.0/us.johnholbrook.pihole.streamDeckPlugin",
+      "version": "v2.0.0",
+      "category": "smarthome",
+      "license": "—",
+      "runtime": "html",
+      "description": {
+        "cs": "Statistiky a dočasné vypnutí blokování reklam v Pi-hole.",
+        "en": "Pi-hole statistics and temporarily disabling ad blocking."
+      }
+    },
+    {
+      "id": "adguard",
+      "uuid": "dev.mdawson.agh",
+      "name": "AdGuard Home",
+      "author": "mdawsonuk",
+      "repo": "mdawsonuk/streamdeck-agh",
+      "url": "https://github.com/mdawsonuk/streamdeck-agh/releases/download/v0.2.1/dev.mdawson.agh.streamDeckPlugin",
+      "version": "v0.2.1",
+      "category": "smarthome",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Statistiky a zapínání ochrany v AdGuard Home.",
+        "en": "Statistics and protection toggles for AdGuard Home."
+      }
+    },
+    {
+      "id": "hwinfo",
+      "uuid": "com.moeilijk.hwinfo",
+      "name": "HWiNFO",
+      "author": "moeilijk",
+      "repo": "moeilijk/hwinfo-streamdeck",
+      "url": "https://github.com/moeilijk/hwinfo-streamdeck/releases/download/v3.1.4/com.moeilijk.hwinfo-3.1.4.streamDeckPlugin",
+      "version": "v3.1.4",
+      "category": "system",
+      "license": "GPL-3.0",
+      "runtime": "exe",
+      "description": {
+        "cs": "Teploty, zatížení a další senzory z HWiNFO přímo na tlačítkách.",
+        "en": "Temperatures, load and other sensors from HWiNFO right on your buttons."
+      },
+      "requires": {
+        "cs": "Potřebuje HWiNFO64 se zapnutou sdílenou pamětí.",
+        "en": "Needs HWiNFO64 with shared memory support turned on."
+      }
+    },
+    {
+      "id": "lhm",
+      "uuid": "com.moeilijk.lhm",
+      "name": "LibreHardwareMonitor",
+      "author": "moeilijk",
+      "repo": "moeilijk/lhm-streamdeck",
+      "url": "https://github.com/moeilijk/lhm-streamdeck/releases/download/v2.1.1/com.moeilijk.lhm-2.1.1.streamDeckPlugin",
+      "version": "v2.1.1",
+      "category": "system",
+      "license": "GPL-3.0",
+      "runtime": "exe",
+      "description": {
+        "cs": "Senzory z LibreHardwareMonitor: teploty, otáčky, zatížení.",
+        "en": "Sensors from LibreHardwareMonitor: temperatures, fan speeds, load."
+      },
+      "requires": {
+        "cs": "Potřebuje LibreHardwareMonitor.",
+        "en": "Needs LibreHardwareMonitor."
+      }
+    },
+    {
+      "id": "windowactions",
+      "uuid": "com.arkyasmal.windowactions",
+      "name": "Window Actions",
+      "author": "aasmal97",
+      "repo": "aasmal97/Window-Actions",
+      "url": "https://github.com/aasmal97/Window-Actions/releases/download/v4.2.2/com.arkyasmal.windowactions.streamDeckPlugin",
+      "version": "v4.2.2",
+      "category": "system",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Přesouvání, změna velikosti a přepínání oken a monitorů.",
+        "en": "Move, resize and switch windows and monitors."
+      }
+    },
+    {
+      "id": "textfiletools",
+      "uuid": "com.barraider.textfiletools",
+      "name": "Text File Tools",
+      "author": "BarRaider",
+      "repo": "BarRaider/streamdeck-textfiletools",
+      "url": "https://github.com/BarRaider/streamdeck-textfiletools/releases/download/v1.5/com.barraider.textfiletools.streamDeckPlugin",
+      "version": "v1.5",
+      "category": "system",
+      "license": "—",
+      "runtime": "exe",
+      "description": {
+        "cs": "Čtení, zápis a úpravy textových souborů, třeba pro overlay ve streamu.",
+        "en": "Read, write and edit text files, e.g. for stream overlays."
+      }
+    },
+    {
+      "id": "delayedtext",
+      "uuid": "com.barraider.delayedtext",
+      "name": "Delayed Text",
+      "author": "BarRaider",
+      "repo": "BarRaider/streamdeck-delayedtext",
+      "url": "https://github.com/BarRaider/streamdeck-delayedtext/releases/download/v1.4/com.barraider.delayedtext.streamDeckPlugin",
+      "version": "v1.4",
+      "category": "system",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Psaní textu s nastavitelnou prodlevou mezi znaky (pro hry a vzdálené plochy).",
+        "en": "Types text with an adjustable delay between characters (for games and remote desktops)."
+      }
+    },
+    {
+      "id": "bitwarden",
+      "uuid": "com.thejoeiaut.bitwarden",
+      "name": "Bitwarden",
+      "author": "TheJoeIaut",
+      "repo": "TheJoeIaut/Bitwarden-Streamdeck-Plugin",
+      "url": "https://github.com/TheJoeIaut/Bitwarden-Streamdeck-Plugin/releases/download/v2.0.1/com.thejoeiaut.bitwarden.streamDeckPlugin",
+      "version": "v2.0.1",
+      "category": "system",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Vložení hesla, jména nebo TOTP kódu z trezoru Bitwarden.",
+        "en": "Type a password, username or TOTP code from your Bitwarden vault."
+      },
+      "requires": {
+        "cs": "Potřebuje Bitwarden CLI.",
+        "en": "Needs the Bitwarden CLI."
+      }
+    },
+    {
+      "id": "keepass",
+      "uuid": "com.victorgrycuk.keepass",
+      "name": "KeePass",
+      "author": "Victor Grycuk",
+      "repo": "VictorGrycuk/StreamDeck-KeePass",
+      "url": "https://github.com/VictorGrycuk/StreamDeck-KeePass/releases/download/v1.7.0/com.victorgrycuk.keepass.streamDeckPlugin",
+      "version": "v1.7.0",
+      "category": "system",
+      "license": "GPL-3.0",
+      "runtime": "exe",
+      "description": {
+        "cs": "Vložení údajů z databáze KeePass.",
+        "en": "Type credentials from a KeePass database."
+      }
+    },
+    {
+      "id": "tomato",
+      "uuid": "com.gallowaylabs.tomato",
+      "name": "Tomato Timer",
+      "author": "Galloway Labs",
+      "repo": "gallowaylabs/streamdeck-tomato-timer",
+      "url": "https://github.com/gallowaylabs/streamdeck-tomato-timer/releases/download/v0.6.0/com.gallowaylabs.tomato.streamDeckPlugin",
+      "version": "v0.6.0",
+      "category": "productivity",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Pomodoro časovač pro střídání práce a přestávek.",
+        "en": "A Pomodoro timer for balancing work and breaks."
+      }
+    },
+    {
+      "id": "stopwatch",
+      "uuid": "com.gabe565.stopwatch",
+      "name": "Stopwatch",
+      "author": "gabe565",
+      "repo": "gabe565/streamdeck-stopwatch",
+      "url": "https://github.com/gabe565/streamdeck-stopwatch/releases/download/v1.0.2/com.gabe565.stopwatch.streamDeckPlugin",
+      "version": "v1.0.2",
+      "category": "productivity",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Jednoduché stopky přímo na tlačítku.",
+        "en": "A simple stopwatch right on a button."
+      }
+    },
+    {
+      "id": "onairclock",
+      "uuid": "fail.marc.onairclock",
+      "name": "On-Air Clock",
+      "author": "wortkrieg",
+      "repo": "wortkrieg/streamdeck-onairclock",
+      "url": "https://github.com/wortkrieg/streamdeck-onairclock/releases/download/v2.0.0/fail.marc.onairclock.streamDeckPlugin",
+      "version": "v2.0.0",
+      "category": "productivity",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Studiové hodiny ve stylu rádia a TV s několika ciferníky.",
+        "en": "Broadcast-style studio clocks with several watch faces."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js.",
+        "en": "Needs Node.js."
+      }
+    },
+    {
+      "id": "jira",
+      "uuid": "com.mediabounds.streamdeck.jira",
+      "name": "Jira & Confluence",
+      "author": "mediabounds",
+      "repo": "mediabounds/streamdeck-jira",
+      "url": "https://github.com/mediabounds/streamdeck-jira/releases/download/1.8.0/com.mediabounds.streamdeck.jira.streamDeckPlugin",
+      "version": "1.8.0",
+      "category": "productivity",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Počty úkolů z Jira a rychlé hledání v Jira a Confluence.",
+        "en": "Issue counts from Jira and quick search in Jira and Confluence."
+      }
+    },
+    {
+      "id": "weather",
+      "uuid": "com.jk.weather",
+      "name": "Weather",
+      "author": "JaouherK",
+      "repo": "JaouherK/streamDeck-weatherPlugin",
+      "url": "https://github.com/JaouherK/streamDeck-weatherPlugin/releases/download/v2.1.2/com.jk.weather.streamDeckPlugin",
+      "version": "v2.1.2",
+      "category": "info",
+      "license": "GPL-3.0",
+      "runtime": "html",
+      "description": {
+        "cs": "Aktuální počasí pro zvolené město.",
+        "en": "Current weather for a city of your choice."
+      },
+      "requires": {
+        "cs": "Potřebuje bezplatný API klíč.",
+        "en": "Needs a free API key."
+      }
+    },
+    {
+      "id": "tickertap",
+      "uuid": "com.matextrem.tickertap",
+      "name": "TickerTap",
+      "author": "matextrem",
+      "repo": "matextrem/streamdeck-tickertap",
+      "url": "https://github.com/matextrem/streamdeck-tickertap/releases/download/v1.13.0/com.matextrem.tickertap.streamDeckPlugin",
+      "version": "v1.13.0",
+      "category": "info",
+      "license": "MIT",
+      "runtime": "html",
+      "description": {
+        "cs": "Živé ceny akcií a kryptoměn s grafem.",
+        "en": "Live stock and crypto prices with a chart."
+      }
+    },
+    {
+      "id": "apirequest",
+      "uuid": "com.github.mjbnz.sd-api-request",
+      "name": "API Request",
+      "author": "mjbnz",
+      "repo": "mjbnz/streamdeck-api-request",
+      "url": "https://github.com/mjbnz/streamdeck-api-request/releases/download/v0.2-alpha/com.github.mjbnz.sd-api-request.streamDeckPlugin",
+      "version": "v0.2-alpha",
+      "category": "developer",
+      "license": "custom",
+      "runtime": "html",
+      "description": {
+        "cs": "Odeslání HTTP požadavku a zobrazení odpovědi na tlačítku.",
+        "en": "Send an HTTP request and show the response on the button."
+      }
+    },
+    {
+      "id": "fetcher",
+      "uuid": "com.len.fetcher",
+      "name": "Fetcher",
+      "author": "lenadweb",
+      "repo": "lenadweb/stream-deck-fetcher",
+      "url": "https://github.com/lenadweb/stream-deck-fetcher/releases/download/v0.2.5.0/com.len.fetcher.streamDeckPlugin",
+      "version": "v0.2.5.0",
+      "category": "developer",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Načtení JSON nebo HTML z libovolné adresy a zobrazení hodnoty.",
+        "en": "Fetch JSON or HTML from any URL and show a value."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js.",
+        "en": "Needs Node.js."
+      }
+    },
+    {
+      "id": "docker",
+      "uuid": "com.darkdragon14.elgato-docker",
+      "name": "Docker",
+      "author": "Darkdragon14",
+      "repo": "Darkdragon14/streamdeck-docker",
+      "url": "https://github.com/Darkdragon14/streamdeck-docker/releases/download/v2.2.0.0/com.darkdragon14.elgato-docker.streamDeckPlugin",
+      "version": "v2.2.0.0",
+      "category": "developer",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Spouštění, zastavení a stav Docker kontejnerů.",
+        "en": "Start, stop and monitor Docker containers."
+      },
+      "requires": {
+        "cs": "Potřebuje Docker Desktop a Node.js.",
+        "en": "Needs Docker Desktop and Node.js."
+      }
+    },
+    {
+      "id": "vscode",
+      "uuid": "com.nicollasr.streamdeckvsc",
+      "name": "VS Code",
+      "author": "Nicollas Ricas",
+      "repo": "nicollasricas/decks-vscode",
+      "url": "https://github.com/nicollasricas/decks-vscode/releases/download/5.1.3/com.nicollasr.streamdeckvsc.streamDeckPlugin",
+      "version": "5.1.3",
+      "category": "developer",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Spouštění příkazů a úloh ve Visual Studio Code.",
+        "en": "Run commands and tasks in Visual Studio Code."
+      },
+      "requires": {
+        "cs": "Potřebuje rozšíření Stream Deck ve VS Code.",
+        "en": "Needs the Stream Deck extension in VS Code."
+      }
+    },
+    {
+      "id": "visualstudio",
+      "uuid": "com.nicollasr.streamdeckvs",
+      "name": "Visual Studio",
+      "author": "Nicollas Ricas",
+      "repo": "nicollasricas/streamdeckvs",
+      "url": "https://github.com/nicollasricas/streamdeckvs/releases/download/3.3.3/com.nicollasr.streamdeckvs.streamDeckPlugin",
+      "version": "3.3.3",
+      "category": "developer",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Spouštění příkazů ve Visual Studio 2017–2022.",
+        "en": "Run commands in Visual Studio 2017–2022."
+      },
+      "requires": {
+        "cs": "Potřebuje rozšíření pro Visual Studio.",
+        "en": "Needs the Visual Studio extension."
+      }
+    },
+    {
+      "id": "jetbrains",
+      "uuid": "com.jetbrains.ide",
+      "name": "JetBrains IDEs",
+      "author": "JetBrains",
+      "repo": "JetBrains/intellij-streamdeck-plugin",
+      "url": "https://github.com/JetBrains/intellij-streamdeck-plugin/releases/download/1.0.6.1/com.jetbrains.ide.streamDeckPlugin",
+      "version": "1.0.6.1",
+      "category": "developer",
+      "license": "Apache-2.0",
+      "runtime": "html",
+      "description": {
+        "cs": "Akce IntelliJ IDEA, PyCharm, WebStorm a dalších IDE od JetBrains.",
+        "en": "Actions for IntelliJ IDEA, PyCharm, WebStorm and other JetBrains IDEs."
+      },
+      "requires": {
+        "cs": "Potřebuje plugin Stream Deck v IDE.",
+        "en": "Needs the Stream Deck plugin in the IDE."
+      }
+    },
+    {
+      "id": "claudeusage",
+      "uuid": "com.saeedkolivand.claude-usage",
+      "name": "Claude Usage",
+      "author": "saeedkolivand",
+      "repo": "saeedkolivand/claude-usage-streamdeck-plugin",
+      "url": "https://github.com/saeedkolivand/claude-usage-streamdeck-plugin/releases/download/v1.15.1/com.saeedkolivand.claude-usage.streamDeckPlugin",
+      "version": "v1.15.1",
+      "category": "developer",
+      "license": "MIT",
+      "runtime": "node",
+      "description": {
+        "cs": "Ukazuje využití limitů Claude (relace a týden).",
+        "en": "Shows your Claude usage limits (session and week)."
+      },
+      "requires": {
+        "cs": "Potřebuje Node.js.",
+        "en": "Needs Node.js."
+      }
+    },
+    {
+      "id": "simhub",
+      "uuid": "net.planetrenner.simhub",
+      "name": "SimHub",
+      "author": "pre-martin",
+      "repo": "pre-martin/StreamDeckSimHubPlugin",
+      "url": "https://github.com/pre-martin/StreamDeckSimHubPlugin/releases/download/v2.5.28/net.planetrenner.simhub.streamDeckPlugin",
+      "version": "v2.5.28",
+      "category": "games",
+      "license": "LGPL-3.0",
+      "runtime": "exe",
+      "description": {
+        "cs": "Tlačítka synchronizovaná se SimHub a simulátory (ACC, iRacing a další).",
+        "en": "Buttons in sync with SimHub and racing sims (ACC, iRacing and more)."
+      },
+      "requires": {
+        "cs": "Potřebuje SimHub.",
+        "en": "Needs SimHub."
+      }
+    },
+    {
+      "id": "starcitizen",
+      "uuid": "com.ltmajor42.starcitizen",
+      "name": "Star Citizen",
+      "author": "ltmajor42",
+      "repo": "ltmajor42/StarCitizen_Streamdeck_Plugin",
+      "url": "https://github.com/ltmajor42/StarCitizen_Streamdeck_Plugin/releases/download/v2.1.0/com.ltmajor42.starcitizen.streamDeckPlugin",
+      "version": "v2.1.0",
+      "category": "games",
+      "license": "MIT",
+      "runtime": "exe",
+      "description": {
+        "cs": "Ovládání lodi ve hře Star Citizen pomocí jejích klávesových zkratek.",
+        "en": "Control your ship in Star Citizen through its key bindings."
+      }
+    },
+    {
+      "id": "dim",
+      "uuid": "com.dim.streamdeck",
+      "name": "Destiny Item Manager",
+      "author": "dim-stream-deck",
+      "repo": "dim-stream-deck/com.dim.streamdeck",
+      "url": "https://github.com/dim-stream-deck/com.dim.streamdeck/releases/download/3.4.0/com.dim.streamdeck.streamDeckPlugin",
+      "version": "3.4.0",
+      "category": "games",
+      "license": "GPL-3.0",
+      "runtime": "node",
+      "description": {
+        "cs": "Přepínání výbavy a vyhledávání v Destiny 2 přes DIM.",
+        "en": "Switch loadouts and search items in Destiny 2 through DIM."
+      },
+      "requires": {
+        "cs": "Potřebuje DIM v prohlížeči a Node.js.",
+        "en": "Needs DIM in the browser and Node.js."
+      }
+    }
+  ]
+}

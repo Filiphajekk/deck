@@ -138,13 +138,12 @@ impl Manifest {
             Some(Runtime::Node { script: code })
         } else if lower.ends_with(".exe") || lower.ends_with(".cmd") || lower.ends_with(".bat") {
             Some(Runtime::Exe { exe: code })
-        } else if !lower.contains('.') {
-            // macOS-style binary name without extension: try `<name>.exe`.
+        } else {
+            // Like the Stream Deck app on Windows: a code path without a known extension
+            // (`com.barraider.delayedtext`, `plugin`) is the program `<name>.exe`.
             Some(Runtime::Exe {
                 exe: format!("{code}.exe"),
             })
-        } else {
-            None
         }
     }
 
@@ -279,6 +278,16 @@ mod tests {
         );
         let none = parse(r#"{"UUID":"a"}"#);
         assert_eq!(none.runtime(), None);
+        // C# plugins: the exe name without extension, with dots in it.
+        let cs = parse(
+            r#"{"UUID":"a","CodePath":"com.barraider.delayedtext","OS":[{"Platform":"windows"}]}"#,
+        );
+        assert_eq!(
+            cs.runtime(),
+            Some(Runtime::Exe {
+                exe: "com.barraider.delayedtext.exe".into()
+            })
+        );
     }
 
     #[test]

@@ -8,7 +8,7 @@
 - **Per-app profiles:** different buttons in your browser than in VS Code, and the panel switches on its own.
 - **Stream Deck plugins:** existing plugins (Discord, Spotify, Twitch, Home Assistant…) work here too.
 
-The app is free and runs locally only. It has no accounts and no telemetry. It only talks to localhost (OBS and plugins).
+The app is free and runs locally only. It has no accounts and no telemetry. It only talks to localhost (OBS and plugins), and to GitHub when you install a plugin from the store.
 
 ## Installation
 
@@ -53,6 +53,14 @@ You need Windows 10 or 11 (x64) with WebView2. WebView2 comes with Windows 11; o
 - In **Settings** you can change the shortcut, turn on a side mouse button, adjust the look and language, and set up the OBS connection.
 
 ## Stream Deck plugins
+
+### Plugin store
+
+The **Plugins → Store** tab has 40 hand-picked open-source plugins that work on Windows: Discord, Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, JetBrains IDEs, SimHub and more. Pick a category or search, then click **Install**. The plugin is downloaded straight from its author's GitHub releases (the newest one, or a verified version if GitHub is unreachable). Each plugin has its own licence.
+
+The catalog is `src-tauri/store/catalog.json`; `node scripts/store-check.mjs` checks every entry (release file present, readable manifest with Windows code).
+
+### Other plugins
 
 1. Download a plugin from the [Elgato Marketplace](https://marketplace.elgato.com/stream-deck/plugins). You get a `.streamDeckPlugin` file.
 2. Install it in one of these ways:

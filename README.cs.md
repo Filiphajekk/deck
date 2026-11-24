@@ -8,7 +8,7 @@
 - **Profily podle aplikace:** v prohlížeči jiná tlačítka než ve VS Code, panel se přepne sám.
 - **Pluginy pro Stream Deck:** existující pluginy (Discord, Spotify, Twitch, Home Assistant…) fungují i tady.
 
-Aplikace je zdarma, běží jen lokálně, nemá účty ani telemetrii. Po síti komunikuje jen s localhostem (OBS a pluginy).
+Aplikace je zdarma, běží jen lokálně, nemá účty ani telemetrii. Po síti komunikuje jen s localhostem (OBS a pluginy) a s GitHubem, když instaluješ plugin z obchodu.
 
 ## Instalace
 
@@ -53,6 +53,14 @@ Potřebuješ Windows 10 nebo 11 (x64) s WebView2. Ve Windows 11 je WebView2 pře
 - V **Nastavení** změníš zkratku, zapneš boční tlačítko myši, upravíš vzhled, jazyk a připojení k OBS.
 
 ## Pluginy pro Stream Deck
+
+### Obchod s pluginy
+
+Na kartě **Pluginy → Obchod** je 40 vybraných open-source pluginů, které fungují ve Windows: Discord, Microsoft Teams, Google Meet, Spotify, Home Assistant, OBS, HWiNFO, Bitwarden, Docker, VS Code, IDE od JetBrains, SimHub a další. Vyber kategorii nebo hledej a klikni na **Instalovat**. Plugin se stáhne přímo z GitHubu jeho autora (nejnovější verze, nebo ověřená verze, když GitHub nejde načíst). Každý plugin má vlastní licenci.
+
+Katalog je v `src-tauri/store/catalog.json`; `node scripts/store-check.mjs` zkontroluje všechny položky (soubor v release, čitelný manifest s kódem pro Windows).
+
+### Další pluginy
 
 1. Plugin stáhni z [Elgato Marketplace](https://marketplace.elgato.com/stream-deck/plugins). Dostaneš soubor `.streamDeckPlugin`.
 2. Nainstaluj ho jedním z těchto způsobů:

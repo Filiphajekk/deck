@@ -2,13 +2,14 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/plugin-dialog";
-import { AlertTriangle, ExternalLink, Puzzle, RotateCw, Trash2, Upload } from "lucide-react";
+import { AlertTriangle, ExternalLink, Puzzle, RotateCw, Store, Trash2, Upload } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { useT } from "../i18n";
 import { newId } from "../lib/ids";
 import type { Button, Icon, Profile, Visual } from "../types/profile";
 import type { PaletteItem } from "./ActionPalette";
 import { errorText } from "./errorText";
+import { StoreView } from "./StoreView";
 import { Btn, cx } from "./ui";
 import { MARKETPLACE_URL } from "./WelcomeWizard";
 
@@ -192,10 +193,18 @@ export function PluginsTab() {
   const t = useT();
   const { plugins, reload } = usePlugins();
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
+  const [view, setView] = useState<"store" | "installed">("store");
+  const [nodeAvailable, setNodeAvailable] = useState(true);
+  useEffect(() => {
+    invoke<boolean>("node_available")
+      .then(setNodeAvailable)
+      .catch(() => {});
+  }, []);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     const un = listen<{ ok: boolean; name?: string; error?: string }>("plugins:installed", (e) => {
+      setView("installed");
       setMessage(
         e.payload.ok
           ? { ok: true, text: t("plugins.installed", { name: e.payload.name ?? "" }) }
@@ -241,98 +250,123 @@ export function PluginsTab() {
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className="mx-auto max-w-3xl space-y-5 p-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <Btn variant="primary" onClick={installFromFile} disabled={busy}>
-            <Upload size={15} /> {t("plugins.install")}
-          </Btn>
-          <Btn variant="ghost" onClick={() => invoke("open_url", { url: MARKETPLACE_URL })}>
-            <ExternalLink size={15} /> {t("plugins.marketplace")}
-          </Btn>
-        </div>
-        <p className="text-sm text-neutral-400">{t("plugins.howTo")}</p>
-        {message && (
-          <p
-            className={
-              message.ok ? "text-sm text-emerald-400" : "text-sm break-words text-rose-400"
-            }
-          >
-            {message.text}
-          </p>
-        )}
-        {anyNodeMissing && <NodeMissing />}
-
-        {plugins.length === 0 && (
-          <div className="rounded-xl border border-dashed border-neutral-700 p-10 text-center text-sm text-neutral-500">
-            <Puzzle className="mx-auto mb-2" />
-            {t("plugins.empty")}
-          </div>
-        )}
-
-        <div className="space-y-3">
-          {plugins.map((p) => (
-            <div key={p.uuid} className="rounded-xl border border-neutral-800 bg-neutral-900 p-4">
-              <div className="flex items-start gap-3">
-                {p.icon ? (
-                  <img src={p.icon} alt="" className="h-10 w-10 rounded-md object-contain" />
-                ) : (
-                  <Puzzle className="h-10 w-10 text-neutral-500" />
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-neutral-100">{p.name}</span>
-                    <span className="text-xs text-neutral-500">{p.version}</span>
-                    <StatusBadge status={p.status} />
-                  </div>
-                  <p className="truncate text-xs text-neutral-500">
-                    {p.author} · {p.uuid}
-                  </p>
-                  {p.description && (
-                    <p className="mt-1 text-sm text-neutral-400">{p.description}</p>
-                  )}
-                  {(p.status.kind === "error" || p.status.kind === "incompatible") && (
-                    <p className="mt-1 text-xs text-rose-400">{p.status.message}</p>
-                  )}
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    {p.actions.map((a) => (
-                      <span
-                        key={a.uuid}
-                        title={a.supported ? a.tooltip : t("plugins.encoderOnly")}
-                        className={cx(
-                          "rounded-full px-2 py-0.5 text-xs",
-                          a.supported
-                            ? "bg-neutral-800 text-neutral-300"
-                            : "bg-neutral-800/50 text-neutral-600 line-through",
-                        )}
-                      >
-                        {a.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-1">
-                  <Btn
-                    small
-                    variant="ghost"
-                    title={t("plugins.restart")}
-                    onClick={() => invoke("restart_plugin", { uuid: p.uuid }).then(reload)}
-                  >
-                    <RotateCw size={14} />
-                  </Btn>
-                  <Btn
-                    small
-                    variant="ghost"
-                    className="text-rose-400"
-                    title={t("plugins.uninstall")}
-                    onClick={() => uninstall(p)}
-                  >
-                    <Trash2 size={14} />
-                  </Btn>
-                </div>
-              </div>
-            </div>
+      <div className={cx("mx-auto space-y-5 p-6", view === "store" ? "max-w-5xl" : "max-w-3xl")}>
+        <div className="flex gap-1 border-b border-neutral-800 pb-3">
+          {(["store", "installed"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={cx(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm",
+                view === v ? "bg-neutral-800 text-white" : "text-neutral-400 hover:text-white",
+              )}
+            >
+              {v === "store" ? <Store size={15} /> : <Puzzle size={15} />}
+              {v === "store"
+                ? t("store.title")
+                : `${t("plugins.installedTab")} (${plugins.length})`}
+            </button>
           ))}
         </div>
+        {view === "store" && <StoreView nodeAvailable={nodeAvailable} />}
+        {view === "installed" && (
+          <>
+            <div className="flex flex-wrap items-center gap-2">
+              <Btn variant="primary" onClick={installFromFile} disabled={busy}>
+                <Upload size={15} /> {t("plugins.install")}
+              </Btn>
+              <Btn variant="ghost" onClick={() => invoke("open_url", { url: MARKETPLACE_URL })}>
+                <ExternalLink size={15} /> {t("plugins.marketplace")}
+              </Btn>
+            </div>
+            <p className="text-sm text-neutral-400">{t("plugins.howTo")}</p>
+            {message && (
+              <p
+                className={
+                  message.ok ? "text-sm text-emerald-400" : "text-sm break-words text-rose-400"
+                }
+              >
+                {message.text}
+              </p>
+            )}
+            {anyNodeMissing && <NodeMissing />}
+
+            {plugins.length === 0 && (
+              <div className="rounded-xl border border-dashed border-neutral-700 p-10 text-center text-sm text-neutral-500">
+                <Puzzle className="mx-auto mb-2" />
+                {t("plugins.empty")}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {plugins.map((p) => (
+                <div
+                  key={p.uuid}
+                  className="rounded-xl border border-neutral-800 bg-neutral-900 p-4"
+                >
+                  <div className="flex items-start gap-3">
+                    {p.icon ? (
+                      <img src={p.icon} alt="" className="h-10 w-10 rounded-md object-contain" />
+                    ) : (
+                      <Puzzle className="h-10 w-10 text-neutral-500" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-neutral-100">{p.name}</span>
+                        <span className="text-xs text-neutral-500">{p.version}</span>
+                        <StatusBadge status={p.status} />
+                      </div>
+                      <p className="truncate text-xs text-neutral-500">
+                        {p.author} · {p.uuid}
+                      </p>
+                      {p.description && (
+                        <p className="mt-1 text-sm text-neutral-400">{p.description}</p>
+                      )}
+                      {(p.status.kind === "error" || p.status.kind === "incompatible") && (
+                        <p className="mt-1 text-xs text-rose-400">{p.status.message}</p>
+                      )}
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {p.actions.map((a) => (
+                          <span
+                            key={a.uuid}
+                            title={a.supported ? a.tooltip : t("plugins.encoderOnly")}
+                            className={cx(
+                              "rounded-full px-2 py-0.5 text-xs",
+                              a.supported
+                                ? "bg-neutral-800 text-neutral-300"
+                                : "bg-neutral-800/50 text-neutral-600 line-through",
+                            )}
+                          >
+                            {a.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <Btn
+                        small
+                        variant="ghost"
+                        title={t("plugins.restart")}
+                        onClick={() => invoke("restart_plugin", { uuid: p.uuid }).then(reload)}
+                      >
+                        <RotateCw size={14} />
+                      </Btn>
+                      <Btn
+                        small
+                        variant="ghost"
+                        className="text-rose-400"
+                        title={t("plugins.uninstall")}
+                        onClick={() => uninstall(p)}
+                      >
+                        <Trash2 size={14} />
+                      </Btn>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

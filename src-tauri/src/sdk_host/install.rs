@@ -21,17 +21,36 @@ fn copy_dir(from: &Path, to: &Path) -> std::io::Result<()> {
     Ok(())
 }
 
+/// A ZIP entry name as a relative path. Archives packed on Windows often use `\` as the
+/// separator, so both are accepted. Absolute paths, drive letters and `..` are refused.
+pub fn safe_relative_path(name: &str) -> Option<PathBuf> {
+    let mut out = PathBuf::new();
+    for part in name.split(['/', '\\']) {
+        match part {
+            "" | "." => continue,
+            ".." => return None,
+            p if p.contains(':') => return None,
+            p => out.push(p),
+        }
+    }
+    if name.starts_with(['/', '\\']) || out.as_os_str().is_empty() {
+        return None;
+    }
+    Some(out)
+}
+
 /// Extracts a ZIP into `dest`, refusing entries that would escape it (zip slip).
 fn extract_zip(archive: &Path, dest: &Path) -> anyhow::Result<()> {
     let file = std::fs::File::open(archive)?;
     let mut zip = zip::ZipArchive::new(file).context("not a valid .streamDeckPlugin file")?;
     for i in 0..zip.len() {
         let mut entry = zip.by_index(i)?;
-        let Some(rel) = entry.enclosed_name() else {
+        let raw = entry.name().to_string();
+        let Some(rel) = safe_relative_path(&raw) else {
             bail!("the archive contains an unsafe path");
         };
         let out = dest.join(rel);
-        if entry.is_dir() {
+        if entry.is_dir() || raw.ends_with('\\') || raw.ends_with('/') {
             std::fs::create_dir_all(&out)?;
             continue;
         }
@@ -135,6 +154,44 @@ mod tests {
         assert!(plugins.join("com.t.p.sdPlugin/manifest.json").is_file());
         // No temp folders left behind.
         assert_eq!(std::fs::read_dir(&plugins).unwrap().count(), 1);
+    }
+
+    #[test]
+    fn installs_archive_with_backslash_paths() {
+        let dir = tempfile::tempdir().unwrap();
+        let plugins = dir.path().join("plugins");
+        std::fs::create_dir_all(&plugins).unwrap();
+        let archive = dir.path().join("w.streamDeckPlugin");
+        write_zip(
+            &archive,
+            &[
+                (
+                    "com.t.w.sdPlugin\\manifest.json",
+                    r#"{"UUID":"com.t.w","Name":"W","Version":"1","CodePath":"com.t.w"}"#,
+                ),
+                ("com.t.w.sdPlugin\\images\\icon.png", "x"),
+            ],
+        );
+        let m = install(&archive, &plugins, |_| {}).unwrap();
+        assert_eq!(m.uuid, "com.t.w");
+        assert!(plugins
+            .join("com.t.w.sdPlugin")
+            .join("images")
+            .join("icon.png")
+            .is_file());
+    }
+
+    #[test]
+    fn safe_paths() {
+        assert_eq!(
+            safe_relative_path("a\\b/c.txt"),
+            Some(PathBuf::from("a").join("b").join("c.txt"))
+        );
+        assert_eq!(safe_relative_path("..\\evil"), None);
+        assert_eq!(safe_relative_path("a/../../evil"), None);
+        assert_eq!(safe_relative_path("C:\\Windows\\x"), None);
+        assert_eq!(safe_relative_path("\\abs"), None);
+        assert_eq!(safe_relative_path("/abs"), None);
     }
 
     #[test]

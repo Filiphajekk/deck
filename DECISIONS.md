@@ -74,3 +74,10 @@ Decisions made where the spec left room (one sentence each, newest at the bottom
 - WebView2 extra flags (`--in-process-gpu`, `--renderer-process-limit=1`) did not lower memory in a measurement, so Tauri's default browser arguments are kept.
 - `README.md` is in English and links to the Czech `README.cs.md` (requested by the user; the spec asked for a Czech README, which is kept).
 - Plugins whose `manifest.json` starts with the `ELGATO` header (encrypted; Elgato's own Marketplace plugins such as Discord) are rejected with a clear message. Decrypting them would mean getting around Elgato's protection, which the spec forbids. Manifests in UTF-16 or with a BOM are decoded.
+
+## Plugin store (added on request after phase 5)
+- The store catalog (40 open-source plugins with Windows support, verified with `scripts/store-check.mjs`) is bundled with the app, so browsing works offline.
+- This is the only network access outside localhost and only happens when the user clicks Install: the latest release is looked up via the GitHub API, with a verified pinned download as fallback (the unauthenticated API allows 60 requests per hour). Downloads are limited to github.com and 300 MB.
+- Plugins are never re-hosted in this repository; they are downloaded from their authors' releases and keep their own licences.
+- When a release has several `.streamDeckPlugin` files the Windows one is preferred (name contains "win", else not "mac").
+- Found while checking the store: ZIPs packed on Windows use `\` in entry names, and C# plugins give their exe without an extension (`com.barraider.delayedtext`); both are now handled like in the Stream Deck app.

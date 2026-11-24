@@ -455,3 +455,39 @@ pub fn open_url(url: String) -> CmdResult<()> {
     }
     crate::actions::shell::open(&url).map_err(err)
 }
+
+// ---------------------------------------------------------------------------------------
+// Plugin store.
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StoreItem {
+    #[serde(flatten)]
+    entry: crate::store::StoreEntry,
+    installed: bool,
+    installed_version: Option<String>,
+}
+
+#[tauri::command]
+pub fn store_catalog() -> Vec<StoreItem> {
+    let installed: std::collections::HashMap<String, String> = crate::sdk_host::host()
+        .map(|h| h.list().into_iter().map(|p| (p.uuid, p.version)).collect())
+        .unwrap_or_default();
+    crate::store::catalog()
+        .into_iter()
+        .map(|entry| StoreItem {
+            installed: installed.contains_key(&entry.uuid),
+            installed_version: installed.get(&entry.uuid).cloned(),
+            entry,
+        })
+        .collect()
+}
+
+/// Downloads the plugin from its author's GitHub releases and installs it.
+#[tauri::command]
+pub async fn store_install(id: String) -> CmdResult<crate::sdk_host::PluginInfo> {
+    tauri::async_runtime::spawn_blocking(move || crate::store::install(&id))
+        .await
+        .map_err(err)?
+        .map_err(|e| format!("{e:#}"))
+}

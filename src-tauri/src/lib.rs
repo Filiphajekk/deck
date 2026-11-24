@@ -23,6 +23,7 @@ pub mod paths;
 pub mod profiles;
 pub mod sdk_host;
 pub mod state;
+pub mod store;
 pub mod tray;
 pub mod windows_ops;
 
@@ -141,6 +142,8 @@ pub fn run() {
             commands::property_inspector_url,
             commands::node_available,
             commands::open_url,
+            commands::store_catalog,
+            commands::store_install,
         ])
         .setup(move |app| {
             let handle = app.handle().clone();

@@ -532,7 +532,10 @@ impl Host {
     /// kill-on-close job object anyway, so nothing can outlive the app.)
     pub fn kill_all_now(&self) {
         let children: Vec<Arc<Mutex<Child>>> = {
-            let mut inner = self.inner.lock();
+            // Never block on exit; the job object kills the plugins anyway.
+            let Some(mut inner) = self.inner.try_lock_for(Duration::from_millis(300)) else {
+                return;
+            };
             inner.connections.clear();
             inner
                 .plugins
@@ -942,7 +945,10 @@ impl Host {
                 }
             }
             Kind::Pi(uuid) => {
-                if let Some(pi) = self.inner.lock().pis.remove(&uuid) {
+                // Bind first: in `if let` the lock guard would live through the block and
+                // `send_to` locks again -> the whole host deadlocked (app hung on quit).
+                let removed = self.inner.lock().pis.remove(&uuid);
+                if let Some(pi) = removed {
                     self.send_to(
                         &pi.plugin,
                         &messages::pi_event(

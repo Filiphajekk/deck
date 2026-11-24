@@ -254,7 +254,8 @@ async fn run_session(cfg: &ObsConfig, rx: &mut mpsc::UnboundedReceiver<Req>) -> 
                                 }
                             }
                             other if other.starts_with("mute-") => {
-                                if let Some(name) = pending_mute_names().lock().remove(other) {
+                                let name = pending_mute_names().lock().remove(other);
+                                if let Some(name) = name {
                                     let muted = data["inputMuted"].as_bool().unwrap_or(false);
                                     set_status(|s| { if muted { s.muted_sources.insert(name); } else { s.muted_sources.remove(&name); } });
                                 }

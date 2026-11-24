@@ -209,9 +209,96 @@ fn reinstalling_a_running_plugin_keeps_it_connected() {
     }
     // Give stale watchers/sockets time to (wrongly) act.
     std::thread::sleep(Duration::from_millis(1500));
-    assert!(host.is_connected(PLUGIN), "plugin lost its connection after reinstall");
+    assert!(
+        host.is_connected(PLUGIN),
+        "plugin lost its connection after reinstall"
+    );
     assert_eq!(host.status(PLUGIN), Some(PluginStatus::Running));
     host.press(PLUGIN, ACTION, CONTEXT, (1, 0)).unwrap();
-    wait_for("press works", || host.button_settings(PLUGIN, CONTEXT)["count"] == 1);
+    wait_for("press works", || {
+        host.button_settings(PLUGIN, CONTEXT)["count"] == 1
+    });
+    host.kill_all_now();
+}
+
+fn percent_decode(s: &str) -> String {
+    let b = s.as_bytes();
+    let mut out = Vec::new();
+    let mut i = 0;
+    while i < b.len() {
+        if b[i] == b'%' && i + 2 < b.len() + 1 {
+            if let Ok(v) = u8::from_str_radix(&s[i + 1..i + 3], 16) {
+                out.push(v);
+                i += 3;
+                continue;
+            }
+        }
+        out.push(b[i]);
+        i += 1;
+    }
+    String::from_utf8(out).unwrap()
+}
+
+/// Regression: closing a Property Inspector used to deadlock the whole host (the lock from
+/// an `if let` was still held when `send_to` locked again), which froze the app.
+#[test]
+fn closing_property_inspector_does_not_deadlock() {
+    use futures_util::SinkExt;
+    if find_node().is_none() {
+        return;
+    }
+    let tmp = tempfile::tempdir().unwrap();
+    let logs = tmp.path().join("logs");
+    std::fs::create_dir_all(&logs).unwrap();
+    let host = Host::start(
+        &tmp.path().join("plugins"),
+        &tmp.path().join("s"),
+        &logs,
+        None,
+    )
+    .unwrap();
+    host.install(&fixture()).unwrap();
+    wait_for("registration", || host.is_connected(PLUGIN));
+    show_button(&host);
+
+    let url = host
+        .property_inspector_url(PLUGIN, ACTION, CONTEXT)
+        .unwrap()
+        .unwrap();
+    let dl = percent_decode(url.split("dl=").nth(1).unwrap());
+    let connect: Value = serde_json::from_str(&dl).unwrap();
+    let port = connect["port"].as_u64().unwrap();
+    let uuid = connect["uuid"].as_str().unwrap().to_string();
+
+    // Open the inspector socket, register, then close it like an iframe being unloaded.
+    tauri::async_runtime::block_on(async move {
+        let (mut ws, _) = tokio_tungstenite::connect_async(format!("ws://127.0.0.1:{port}"))
+            .await
+            .unwrap();
+        ws.send(tokio_tungstenite::tungstenite::Message::Text(
+            serde_json::json!({ "event": "registerPropertyInspector", "uuid": uuid })
+                .to_string()
+                .into(),
+        ))
+        .await
+        .unwrap();
+        tokio::time::sleep(Duration::from_millis(300)).await;
+        ws.close(None).await.unwrap();
+    });
+    std::thread::sleep(Duration::from_millis(500));
+
+    // The host must still answer (with the bug this blocked forever).
+    let (tx, rx) = std::sync::mpsc::channel();
+    let h = host.clone();
+    std::thread::spawn(move || {
+        let ok = h.press(PLUGIN, ACTION, CONTEXT, (1, 0)).is_ok();
+        let _ = tx.send(ok);
+    });
+    let result = rx.recv_timeout(Duration::from_secs(5));
+    assert_eq!(
+        result,
+        Ok(true),
+        "plugin host deadlocked after closing the inspector"
+    );
     host.kill_all_now();
 }

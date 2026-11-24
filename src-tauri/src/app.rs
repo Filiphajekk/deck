@@ -109,7 +109,8 @@ impl Core {
 
     /// Profile id that should be active for the given foreground exe.
     pub fn profile_id_for(&self, exe: Option<&str>) -> String {
-        if let Some(id) = self.manual_profile.lock().clone() {
+        let manual = self.manual_profile.lock().clone();
+        if let Some(id) = manual {
             if self.profiles.read().get(&id).is_some() {
                 return id;
             }
@@ -169,15 +170,22 @@ pub fn sync_autostart(app: &AppHandle) {
 pub fn quit(app: &AppHandle) {
     tracing::info!("quit requested");
     crate::diag::set_exiting();
+    // The fallback starts first and takes no locks: whatever hangs below, the process ends.
+    // TerminateProcess skips DLL shutdown code, which can itself hang (std::process::exit).
+    std::thread::spawn(|| {
+        std::thread::sleep(std::time::Duration::from_secs(3));
+        crate::diag::append_crash("shutdown took longer than 3 s; terminated");
+        unsafe {
+            let _ = windows::Win32::System::Threading::TerminateProcess(
+                windows::Win32::System::Threading::GetCurrentProcess(),
+                0,
+            );
+        }
+    });
+    crate::input::hook::stop();
     if let Some(h) = crate::sdk_host::host() {
         h.kill_all_now();
     }
-    crate::input::hook::stop();
-    std::thread::spawn(|| {
-        std::thread::sleep(std::time::Duration::from_secs(3));
-        tracing::warn!("shutdown took too long; exiting now");
-        crate::logging::flush();
-        std::process::exit(0);
-    });
+    crate::logging::flush();
     app.exit(0);
 }

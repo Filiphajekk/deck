@@ -51,6 +51,8 @@ fn install_panic_hook() {
         let name = thread.name().unwrap_or("<unnamed>");
         let bt = std::backtrace::Backtrace::force_capture();
         tracing::error!(thread = name, "panic: {info}\n{bt}");
+        // The file log is written in the background and may not reach the disk.
+        crate::diag::append_crash(&format!("panic in thread {name}: {info}\n{bt}"));
         default(info);
     }));
 }

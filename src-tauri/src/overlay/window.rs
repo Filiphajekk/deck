@@ -1,5 +1,8 @@
 //! The overlay window: created once (hidden) and then only moved, shown and hidden via Win32.
 //!
+//! Position/show/hide are posted asynchronously (`SWP_ASYNCWINDOWPOS`, `ShowWindowAsync`)
+//! so the overlay controller never waits for the UI thread, even if it is busy.
+//!
 //! It never takes focus (`WS_EX_NOACTIVATE`, shown with `SW_SHOWNOACTIVATE`) and ignores the
 //! mouse (click-through); all interaction is handled by the input hooks.
 
@@ -10,8 +13,9 @@ use windows::Win32::Graphics::Gdi::{
 };
 use windows::Win32::UI::HiDpi::{GetDpiForMonitor, MDT_EFFECTIVE_DPI};
 use windows::Win32::UI::WindowsAndMessaging::{
-    GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos, ShowWindow, GWL_EXSTYLE, HWND_TOPMOST,
-    SWP_NOACTIVATE, SWP_NOOWNERZORDER, SWP_SHOWWINDOW, SW_HIDE, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
+    GetWindowLongPtrW, SetWindowLongPtrW, SetWindowPos, ShowWindowAsync, GWL_EXSTYLE, HWND_TOPMOST,
+    SWP_ASYNCWINDOWPOS, SWP_NOACTIVATE, SWP_NOOWNERZORDER, SWP_SHOWWINDOW, SW_HIDE,
+    WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW,
 };
 
 use super::geometry::Rect;
@@ -90,7 +94,7 @@ pub fn position(h: isize, rect: Rect) {
                 rect.top,
                 rect.width(),
                 rect.height(),
-                SWP_NOACTIVATE | SWP_NOOWNERZORDER,
+                SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS,
             );
         }
     }
@@ -106,13 +110,13 @@ pub fn show(h: isize, rect: Rect) {
             rect.top,
             rect.width(),
             rect.height(),
-            SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER,
+            SWP_NOACTIVATE | SWP_SHOWWINDOW | SWP_NOOWNERZORDER | SWP_ASYNCWINDOWPOS,
         );
     }
 }
 
 pub fn hide(h: isize) {
     unsafe {
-        let _ = ShowWindow(hwnd(h), SW_HIDE);
+        let _ = ShowWindowAsync(hwnd(h), SW_HIDE);
     }
 }

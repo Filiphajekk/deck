@@ -81,3 +81,8 @@ Decisions made where the spec left room (one sentence each, newest at the bottom
 - Plugins are never re-hosted in this repository; they are downloaded from their authors' releases and keep their own licences.
 - When a release has several `.streamDeckPlugin` files the Windows one is preferred (name contains "win", else not "mac").
 - Found while checking the store: ZIPs packed on Windows use `\` in entry names, and C# plugins give their exe without an extension (`com.barraider.delayedtext`); both are now handled like in the Stream Deck app.
+
+## Stability fixes after user reports (app "crashing" with plugins)
+- Windows logged the app as hung (AppHangB1), not crashed: plugin-related commands ran on the UI thread and decoded all plugin icons on every call (~0.64 s for two plugins), and a crash-looping plugin made the editor request the list repeatedly. All plugin/file/process commands now run on worker threads, plugin images are cached once per file, the editor shares one debounced plugin list, and the `deckplugin://` scheme is served asynchronously.
+- The overlay uses `SWP_ASYNCWINDOWPOS` / `ShowWindowAsync`, so the controller never blocks on the UI thread.
+- `logs\crash.log` is written synchronously on panics and unhandled native exceptions, and a watchdog logs when the UI thread stops responding (the normal log is asynchronous and loses its last lines on a hard exit).

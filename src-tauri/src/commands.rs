@@ -31,7 +31,7 @@ pub async fn set_config(config: Config) -> CmdResult<()> {
 }
 
 #[tauri::command]
-pub fn list_profiles() -> Vec<Profile> {
+pub async fn list_profiles() -> Vec<Profile> {
     core().profiles.read().list().to_vec()
 }
 
@@ -117,8 +117,12 @@ pub fn latency_stats() -> LatencyStats {
 }
 
 #[tauri::command]
-pub fn open_logs_folder() -> CmdResult<()> {
-    crate::actions::shell::open(&crate::paths::logs_dir().to_string_lossy()).map_err(err)
+pub async fn open_logs_folder() -> CmdResult<()> {
+    let dir = crate::paths::logs_dir().to_string_lossy().to_string();
+    tauri::async_runtime::spawn_blocking(move || crate::actions::shell::open(&dir))
+        .await
+        .map_err(err)?
+        .map_err(err)
 }
 
 #[tauri::command]
@@ -277,7 +281,7 @@ pub async fn import_all(path: String) -> CmdResult<usize> {
 // Elevation.
 
 #[tauri::command]
-pub fn is_elevated() -> bool {
+pub async fn is_elevated() -> bool {
     crate::elevation::is_elevated()
 }
 
@@ -375,37 +379,47 @@ fn plugin_host() -> CmdResult<&'static std::sync::Arc<crate::sdk_host::Host>> {
     crate::sdk_host::host().ok_or_else(|| "the plugin host is not running".to_string())
 }
 
+/// Runs blocking work off the main (UI) thread. Sync Tauri commands run on the main
+/// thread, so anything touching files, images, processes or the plugin host goes here;
+/// otherwise the editor and the overlay freeze (Windows reports the app as hung).
+async fn blocking<T: Send + 'static>(f: impl FnOnce() -> T + Send + 'static) -> CmdResult<T> {
+    tauri::async_runtime::spawn_blocking(f).await.map_err(err)
+}
+
 #[tauri::command]
-pub fn list_plugins() -> Vec<crate::sdk_host::PluginInfo> {
-    crate::sdk_host::host()
-        .map(|h| h.list())
-        .unwrap_or_default()
+pub async fn list_plugins() -> CmdResult<Vec<crate::sdk_host::PluginInfo>> {
+    blocking(|| {
+        crate::sdk_host::host()
+            .map(|h| h.list())
+            .unwrap_or_default()
+    })
+    .await
 }
 
 #[tauri::command]
 pub async fn install_plugin(path: String) -> CmdResult<crate::sdk_host::PluginInfo> {
     let host = plugin_host()?.clone();
-    tauri::async_runtime::spawn_blocking(move || host.install(std::path::Path::new(&path)))
-        .await
-        .map_err(err)?
+    blocking(move || host.install(std::path::Path::new(&path)))
+        .await?
         .map_err(|e| format!("{e:#}"))
 }
 
 #[tauri::command]
 pub async fn uninstall_plugin(uuid: String) -> CmdResult<()> {
     let host = plugin_host()?.clone();
-    tauri::async_runtime::spawn_blocking(move || host.uninstall(&uuid))
-        .await
-        .map_err(err)?
+    blocking(move || host.uninstall(&uuid))
+        .await?
         .map_err(|e| format!("{e:#}"))
 }
 
 #[tauri::command]
-pub fn restart_plugin(uuid: String) -> CmdResult<()> {
-    let host = plugin_host()?;
-    host.stop_plugin(&uuid);
-    host.start_plugin(&uuid);
-    Ok(())
+pub async fn restart_plugin(uuid: String) -> CmdResult<()> {
+    let host = plugin_host()?.clone();
+    blocking(move || {
+        host.stop_plugin(&uuid);
+        host.start_plugin(&uuid);
+    })
+    .await
 }
 
 #[derive(Serialize)]
@@ -417,12 +431,13 @@ pub struct PluginButtonDefaults {
 }
 
 #[tauri::command]
-pub fn plugin_action_defaults(
+pub async fn plugin_action_defaults(
     plugin_uuid: String,
     action_uuid: String,
 ) -> CmdResult<PluginButtonDefaults> {
-    let (title, icon, state_b) = plugin_host()?
-        .action_defaults(&plugin_uuid, &action_uuid)
+    let host = plugin_host()?.clone();
+    let (title, icon, state_b) = blocking(move || host.action_defaults(&plugin_uuid, &action_uuid))
+        .await?
         .ok_or("unknown plugin action")?;
     Ok(PluginButtonDefaults {
         title,
@@ -432,28 +447,31 @@ pub fn plugin_action_defaults(
 }
 
 #[tauri::command]
-pub fn property_inspector_url(
+pub async fn property_inspector_url(
     plugin_uuid: String,
     action_uuid: String,
     context: String,
 ) -> CmdResult<Option<String>> {
-    plugin_host()?
-        .property_inspector_url(&plugin_uuid, &action_uuid, &context)
+    let host = plugin_host()?.clone();
+    blocking(move || host.property_inspector_url(&plugin_uuid, &action_uuid, &context))
+        .await?
         .map_err(|e| format!("{e:#}"))
 }
 
 #[tauri::command]
-pub fn node_available() -> bool {
-    crate::sdk_host::find_node().is_some()
+pub async fn node_available() -> CmdResult<bool> {
+    blocking(|| crate::sdk_host::find_node().is_some()).await
 }
 
 #[tauri::command]
-pub fn open_url(url: String) -> CmdResult<()> {
+pub async fn open_url(url: String) -> CmdResult<()> {
     let lower = url.to_lowercase();
     if !(lower.starts_with("https://") || lower.starts_with("http://")) {
         return Err("only web addresses can be opened".into());
     }
-    crate::actions::shell::open(&url).map_err(err)
+    blocking(move || crate::actions::shell::open(&url))
+        .await?
+        .map_err(err)
 }
 
 // ---------------------------------------------------------------------------------------
@@ -469,18 +487,22 @@ pub struct StoreItem {
 }
 
 #[tauri::command]
-pub fn store_catalog() -> Vec<StoreItem> {
-    let installed: std::collections::HashMap<String, String> = crate::sdk_host::host()
-        .map(|h| h.list().into_iter().map(|p| (p.uuid, p.version)).collect())
-        .unwrap_or_default();
-    crate::store::catalog()
-        .into_iter()
-        .map(|entry| StoreItem {
-            installed: installed.contains_key(&entry.uuid),
-            installed_version: installed.get(&entry.uuid).cloned(),
-            entry,
-        })
-        .collect()
+pub async fn store_catalog() -> CmdResult<Vec<StoreItem>> {
+    blocking(|| {
+        // Only versions are needed here; no icons are decoded.
+        let installed = crate::sdk_host::host()
+            .map(|h| h.versions())
+            .unwrap_or_default();
+        crate::store::catalog()
+            .into_iter()
+            .map(|entry| StoreItem {
+                installed: installed.contains_key(&entry.uuid),
+                installed_version: installed.get(&entry.uuid).cloned(),
+                entry,
+            })
+            .collect()
+    })
+    .await
 }
 
 /// Downloads the plugin from its author's GitHub releases and installs it.

@@ -7,6 +7,7 @@ pub mod audio;
 pub mod branding;
 pub mod commands;
 pub mod config;
+pub mod diag;
 pub mod editor_window;
 pub mod elevation;
 pub mod foreground;
@@ -62,6 +63,7 @@ fn elevate_if_configured() -> bool {
 
 pub fn run() {
     let _log_guard = logging::init();
+    diag::install_crash_handler();
     tracing::info!(
         version = env!("CARGO_PKG_VERSION"),
         elevated = elevation::is_elevated(),
@@ -81,9 +83,13 @@ pub fn run() {
                 editor_window::open(app, None);
             }
         }))
-        .register_uri_scheme_protocol(sdk_host::protocol::SCHEME, |_ctx, request| {
-            sdk_host::protocol::handle(&request)
-        })
+        // Plugin pages are read on a worker thread so the UI thread never waits for disk.
+        .register_asynchronous_uri_scheme_protocol(
+            sdk_host::protocol::SCHEME,
+            |_ctx, request, responder| {
+                std::thread::spawn(move || responder.respond(sdk_host::protocol::handle(&request)));
+            },
+        )
         .on_window_event(|window, event| {
             // Plugins dropped onto the editor window are installed (SPEC 7.1).
             if let tauri::WindowEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }) = event {
@@ -152,6 +158,7 @@ pub fn run() {
 
             let (_overlay, hwnd) = overlay::window::create(&handle)?;
             core.overlay_hwnd.store(hwnd, Ordering::SeqCst);
+            diag::start_ui_watchdog(hwnd);
 
             let input_rx = input::hook::start();
             overlay::controller::start(input_rx, ctl_rx);

@@ -194,9 +194,28 @@ pub struct PluginInfo {
     pub actions: Vec<ActionInfo>,
 }
 
+/// Decoded plugin images by file path. Decoding and re-encoding PNGs is slow, and the
+/// editor asks for the plugin list often, so each image is converted only once.
+static IMAGE_CACHE: Mutex<Option<HashMap<PathBuf, Option<String>>>> = Mutex::new(None);
+
 fn image_data_url(dir: &Path, rel: &str) -> Option<String> {
     let p = manifest::resolve_image(dir, rel)?;
-    crate::icons::load_image_data_url(&p).ok()
+    if let Some(hit) = IMAGE_CACHE.lock().as_ref().and_then(|c| c.get(&p).cloned()) {
+        return hit;
+    }
+    let url = crate::icons::load_image_data_url(&p).ok();
+    IMAGE_CACHE
+        .lock()
+        .get_or_insert_with(HashMap::new)
+        .insert(p, url.clone());
+    url
+}
+
+/// Forgets cached images of a plugin folder (after an update or uninstall).
+fn forget_images(dir: &Path) {
+    if let Some(c) = IMAGE_CACHE.lock().as_mut() {
+        c.retain(|k, _| !k.starts_with(dir));
+    }
 }
 
 impl Host {
@@ -509,6 +528,7 @@ impl Host {
         let m = install::install(source, &self.plugins_dir, |uuid| self.stop_plugin(uuid))?;
         let uuid = m.uuid.clone();
         let dir = self.plugins_dir.join(format!("{uuid}.sdPlugin"));
+        forget_images(&dir);
         self.register_entry(m, dir);
         self.start_plugin(&uuid);
         self.notify_editor();
@@ -543,6 +563,7 @@ impl Host {
         if let Some(e) = last {
             return Err(e).context("cannot delete plugin files");
         }
+        forget_images(&dir);
         self.settings.remove_plugin(uuid);
         self.notify_editor();
         Ok(())
@@ -575,6 +596,16 @@ impl Host {
                 })
                 .collect(),
         })
+    }
+
+    /// Installed plugins and their versions (cheap: no images).
+    pub fn versions(&self) -> HashMap<String, String> {
+        self.inner
+            .lock()
+            .plugins
+            .iter()
+            .map(|(u, p)| (u.clone(), p.manifest.version.clone()))
+            .collect()
     }
 
     pub fn list(&self) -> Vec<PluginInfo> {
@@ -796,7 +827,12 @@ impl Host {
             "info": info.to_string(),
             "actionInfo": action_info.to_string(),
         });
-        self.inner.lock().pis.insert(
+        let mut inner = self.inner.lock();
+        // Inspectors that were opened for this button but never connected are stale.
+        inner
+            .pis
+            .retain(|_, p| p.tx.is_some() || p.context != context);
+        inner.pis.insert(
             pi_uuid,
             PiConn {
                 plugin: plugin.to_string(),

@@ -49,20 +49,56 @@ interface Defaults {
 
 const NODE_URL = "https://nodejs.org/";
 
+// One shared plugin list for the whole editor. A plugin that keeps crashing sends many
+// "plugins:changed" events; they are coalesced so the list is fetched at most once per
+// 300 ms and never twice at the same time.
+let pluginCache: PluginInfo[] | null = null;
+const pluginSubscribers = new Set<(p: PluginInfo[]) => void>();
+let reloadTimer: number | undefined;
+let reloadInFlight = false;
+let reloadAgain = false;
+let listening = false;
+
+function fetchPlugins() {
+  if (reloadInFlight) {
+    reloadAgain = true;
+    return;
+  }
+  reloadInFlight = true;
+  invoke<PluginInfo[]>("list_plugins")
+    .then((list) => {
+      pluginCache = list;
+      pluginSubscribers.forEach((f) => f(list));
+    })
+    .catch(() => {})
+    .finally(() => {
+      reloadInFlight = false;
+      if (reloadAgain) {
+        reloadAgain = false;
+        scheduleReload();
+      }
+    });
+}
+
+function scheduleReload() {
+  window.clearTimeout(reloadTimer);
+  reloadTimer = window.setTimeout(fetchPlugins, 300);
+}
+
 function usePlugins() {
-  const [plugins, setPlugins] = useState<PluginInfo[]>([]);
-  const reload = useCallback(() => {
-    invoke<PluginInfo[]>("list_plugins")
-      .then(setPlugins)
-      .catch(() => setPlugins([]));
-  }, []);
+  const [plugins, setPlugins] = useState<PluginInfo[]>(pluginCache ?? []);
   useEffect(() => {
-    reload();
-    const un = listen("plugins:changed", reload);
+    if (!listening) {
+      listening = true;
+      void listen("plugins:changed", scheduleReload);
+    }
+    pluginSubscribers.add(setPlugins);
+    if (pluginCache === null) fetchPlugins();
     return () => {
-      un.then((f) => f());
+      pluginSubscribers.delete(setPlugins);
     };
-  }, [reload]);
+  }, []);
+  const reload = useCallback(() => scheduleReload(), []);
   return { plugins, reload };
 }
 
@@ -77,7 +113,11 @@ export function usePluginPalette(): {
 
   useEffect(() => {
     let alive = true;
-    const keys = plugins.flatMap((p) => p.actions.map((a) => [p.uuid, a.uuid] as const));
+    // Only ask for actions we do not know yet (the list is refreshed often).
+    const keys = plugins
+      .flatMap((p) => p.actions.map((a) => [p.uuid, a.uuid] as const))
+      .filter(([p, a]) => !defaults.has(`${p}/${a}`));
+    if (keys.length === 0) return;
     Promise.all(
       keys.map(([p, a]) =>
         invoke<Defaults>("plugin_action_defaults", { pluginUuid: p, actionUuid: a })
@@ -86,12 +126,16 @@ export function usePluginPalette(): {
       ),
     ).then((list) => {
       if (!alive) return;
-      setDefaults(new Map(list.filter((x): x is [string, Defaults] => !!x)));
+      setDefaults((old) => {
+        const next = new Map(old);
+        list.filter((x): x is [string, Defaults] => !!x).forEach(([k, d]) => next.set(k, d));
+        return next;
+      });
     });
     return () => {
       alive = false;
     };
-  }, [plugins]);
+  }, [plugins, defaults]);
 
   const items: PaletteItem[] = plugins.flatMap((p) =>
     p.actions.map((a) => ({

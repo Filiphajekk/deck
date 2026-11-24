@@ -7,7 +7,9 @@ fn main() {
     let start = std::time::Instant::now();
     let mut n = 0;
     for e in std::fs::read_dir(&dir).unwrap().flatten() {
-        let Ok(m) = Manifest::load(&e.path()) else { continue };
+        let Ok(m) = Manifest::load(&e.path()) else {
+            continue;
+        };
         let mut rels = vec![m.icon.clone()];
         for a in &m.actions {
             rels.push(a.icon.clone());
